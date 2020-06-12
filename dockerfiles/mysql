@@ -1,0 +1,14 @@
+FROM mysql:5.7
+
+COPY . /upload/
+
+WORKDIR /
+RUN mv upload/gocmdb.sql docker-entrypoint-initdb.d/ && \
+    rm -f etc/localtime && \
+    mv upload/Shanghai /etc/localtime && \
+    rm -fr upload
+
+ENV MYSQL_ROOT_PASSWORD 123456
+ENV MYSQL_DATABASE gocmdb
+ENV MYSQL_USER cmdb
+ENV MYSQL_PASSWORD 123456
