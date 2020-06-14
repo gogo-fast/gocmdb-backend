@@ -8,8 +8,6 @@ import (
 	"path/filepath"
 )
 
-
-
 func SaveSingleFile(c *gin.Context, file *multipart.FileHeader, storePath, suffix string) (string, error) {
 
 	fmt.Println(storePath)

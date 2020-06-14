@@ -30,7 +30,7 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	salt, _:= utils.SplitMd5SaltPass(userDetails.Password)
+	salt, _ := utils.SplitMd5SaltPass(userDetails.Password)
 
 	if utils.Md5SaltPass(ulf.Password, salt) != userDetails.Password {
 		utils.Logger.Info("username or password is incorrect")
@@ -38,9 +38,11 @@ func Login(c *gin.Context) {
 		return
 	}
 
+	utils.GlobalConfig.SetDefault("jwt.max_exp", 3600)
+	expireAt := utils.GlobalConfig.GetInt("jwt.max_exp")
 	standardClaims := jwt.StandardClaims{
 		Audience:  "",
-		ExpiresAt: time.Now().Add(time.Second * time.Duration(utils.GlobalConfig.Section("jwt").Key("max_exp").MustInt(3600))).Unix(),
+		ExpiresAt: time.Now().Add(time.Second * time.Duration(expireAt)).Unix(),
 	}
 
 	tokenStr, err := utils.GenJwtAuthToken(
@@ -63,8 +65,8 @@ func Login(c *gin.Context) {
 		utils.Logger.Error(err)
 		utils.BadResponse(c, "获取token失败")
 	}
-	maxAge := utils.GlobalConfig.Section("server").Key("token_exp").MustInt(3600)
-	domain := utils.GlobalConfig.Section("server").Key("domain").String()
+	maxAge := utils.GlobalConfig.GetInt("server.token_exp")
+	domain := utils.GlobalConfig.GetString("server.domain")
 
 	c.SetCookie("authToken", tokenStr, maxAge, "/", domain, false, false)
 	c.JSON(200, gin.H{

@@ -13,19 +13,19 @@ var Route *gin.Engine
 func init() {
 	Route = gin.Default()
 
-	mmy := utils.GlobalConfig.Section("filesystem").Key("max_multipart_memory").MustInt(20)
+	mmy := utils.GlobalConfig.GetInt("filesystem.max_multipart_memory")
 	Route.MaxMultipartMemory = 8 << mmy
 
-	userStaticPath := utils.GlobalConfig.Section("filesystem").Key("user_static_dir_name").String()
-	userStaticUrl := utils.GlobalConfig.Section("filesystem").Key("user_static_url").String()
+	userStaticPath := utils.GlobalConfig.GetString(("filesystem.user_static_dir_name"))
+	userStaticUrl := utils.GlobalConfig.GetString(("filesystem.user_static_url"))
 
 	img := Route.Group("/img", middlewares.BaseAuth)
 	{
 		img.StaticFS(userStaticUrl, http.Dir(fmt.Sprintf("%s/upload/%s", utils.BaseDir, userStaticPath)))
 	}
 
-	host := utils.GlobalConfig.Section("filesystem").Key("host").String()
-	port := utils.GlobalConfig.Section("server").Key("port").String()
+	host := utils.GlobalConfig.GetString("filesystem.host")
+	port := utils.GlobalConfig.GetString("server.port")
 	utils.Logger.Info(fmt.Sprintf("File System Served On: http://%s:%s/img%s", host, port, userStaticUrl))
 
 	v1 := Route.Group("/v1", middlewares.AllowCors())
@@ -60,6 +60,12 @@ func init() {
 
 			user.POST("/avatar", middlewares.AuthCurrentUser, UploadAvatar)
 			user.OPTIONS("/avatar", middlewares.AuthCurrentUser, UploadAvatar)
+		}
+
+		cloud := v1.Group("/cloud", middlewares.BaseAuth)
+		{
+			cloud.GET("/regions", GetRegions)
+			cloud.GET("/zones", GetZones)
 		}
 	}
 }

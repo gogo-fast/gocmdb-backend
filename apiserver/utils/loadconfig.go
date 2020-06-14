@@ -2,14 +2,15 @@ package utils
 
 import (
 	"fmt"
-	"gopkg.in/ini.v1"
+	"github.com/spf13/viper"
+	//"gopkg.in/ini.v1"
 	"os"
 	"path/filepath"
 )
 
 var (
-	GlobalConfig *ini.File
-	BaseDir      string
+	GlobalConfig *viper.Viper
+	BaseDir string
 )
 
 func init() {
@@ -22,12 +23,31 @@ func init() {
 	BaseDir = filepath.Dir(filepath.Dir(absDir))
 	// you should use the following base dir while binary was build into src/
 	//BaseDir = filepath.Dir(absDir)
-	confPath := filepath.Join(BaseDir, "conf", "config.ini")
-	GlobalConfig, err = ini.Load(confPath)
 
-	if err != nil {
+	GlobalConfig = viper.New()
+
+	GlobalConfig.SetConfigName("config")
+	GlobalConfig.AddConfigPath(filepath.Join(BaseDir, "conf"))
+
+	if err := GlobalConfig.ReadInConfig(); err != nil {
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+			// Config file not found; ignore error if desired
+			fmt.Println("config file not found")
+		} else {
+			// Config file was found but another error was produced
+			fmt.Println("other errors", err)
+		}
 		fmt.Println("Load Config Failed:", err)
 		os.Exit(1)
 	}
+
+	GlobalConfig.SetDefault("cors.allow_credentials", false)
+	GlobalConfig.SetDefault("cors.max_age", 24)
+	GlobalConfig.SetDefault("mysql.max_conn", 10)
+	GlobalConfig.SetDefault("mysql.max_idle", 5)
+	GlobalConfig.SetDefault("filesystem.max_multipart_memory", 20)
+	GlobalConfig.SetDefault("server.default_page_num", 1)
+	GlobalConfig.SetDefault("server.default_page_size", 5)
+
 	fmt.Println("Load Config Success")
 }

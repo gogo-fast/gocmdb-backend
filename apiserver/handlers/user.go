@@ -83,8 +83,8 @@ func GetUserDetailById(c *gin.Context) {
 func GetUserList(c *gin.Context) {
 	var p, s int
 	var err error
-	deafultPageNum := utils.GlobalConfig.Section("server").Key("default_page_num").MustInt(1)
-	deafultPageSize := utils.GlobalConfig.Section("server").Key("default_page_size").MustInt(5)
+	deafultPageNum := utils.GlobalConfig.GetInt("server.default_page_num")
+	deafultPageSize := utils.GlobalConfig.GetInt("server.default_page_size")
 	page := c.DefaultQuery("page", "none")
 	size := c.DefaultQuery("size", "none")
 
@@ -297,10 +297,10 @@ func UpdatePasswordById(c *gin.Context) {
 
 }
 
-var host = utils.GlobalConfig.Section("server").Key("host").String()
-var port = utils.GlobalConfig.Section("server").Key("port").String()
-var userStaticUrl = utils.GlobalConfig.Section("filesystem").Key("user_static_url").String()
-var userStaticPath = utils.GlobalConfig.Section("filesystem").Key("user_static_dir_name").String()
+var host = utils.GlobalConfig.GetString("server.host")
+var port = utils.GlobalConfig.GetString("server.port")
+var userStaticUrl = utils.GlobalConfig.GetString("filesystem.user_static_url")
+var userStaticPath = utils.GlobalConfig.GetString("filesystem.user_static_dir_name")
 
 func UploadAvatar(c *gin.Context) {
 	userId := utils.GetUserIdFromUrl(c)

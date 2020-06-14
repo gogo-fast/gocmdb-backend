@@ -1,0 +1,82 @@
+server:
+  host: go.cmdb.com
+  port: 8000
+  domain: cmdb.com
+  token_exp: 36000 # seconds
+  default_page_num: 1
+  default_page_size: 5
+
+log:
+  log_dir_name: logs
+  log_file_name: cmdb.log
+
+
+env:
+  # env: dev|product
+  env: product
+
+
+filesystem:
+  host: img.cmdb.com
+  # 8 << 20 <==> 8 MiB
+  max_multipart_memory: 20
+  user_static_dir_name: users
+  user_static_url: /user
+
+
+cors:
+  allow_origins:
+    - "http://go.cmdb.com"
+    - "http://img.cmdb.com"
+
+  ## X-Requested-With is for allowing OPTIONS method of upload file.
+  allow_headers:
+    - Origin
+    - Authorization
+    - Content-Type
+    - X-Requested-With
+
+  # Since Non-simple requests will do a preflight request (with OPTIONS method)，
+  # so we should permit OPTIONS here.
+  allow_methods:
+    - OPTIONS
+    - PUT
+    - PATCH
+    - POST
+    - GET
+    - HEAD
+    - DELETE
+
+  # Since only the following six HEADER fields could be catch by
+  # getResponseHeader method of XMLHttpRequest Object while a CORS request:
+  # Cache-Control、Content-Language、Content-Type、Expires、Last-Modified、Pragma.
+  # Other Headers should be specified within "Access-Control-Expose-Headers" if they want be took.
+  expose_headers:
+    - Content-Length
+
+  allow_credentials: true
+  max_age: 12  # hours
+
+
+jwt:
+  max_exp: 36000  # seconds
+
+
+mysql:
+  host: 192.168.10.100
+  port: 3306
+  db_name: gocmdb
+  db_user: cmdb
+  db_password: 123456
+  max_conn: 10
+  max_idle: 5
+
+
+aliyun:
+  default_region_id: cn-zhangjiakou
+  acess_key_id: LTAI4G5eagkrwTs1Rcd8pZHz
+  acess_key_secret: 8F1k3W2CSkW09DfvKHeS9QmhigMtrF
+
+
+
+

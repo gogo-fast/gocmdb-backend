@@ -10,7 +10,7 @@ import (
 func main() {
 	utils.InitLogger()
 
-	port := utils.GlobalConfig.Section("server").Key("port").String()
+	port := utils.GlobalConfig.GetString("server.port")
 
 	addr := fmt.Sprintf(":%s", port)
 

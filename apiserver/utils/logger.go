@@ -16,9 +16,9 @@ func InitLogger() {
 	// The API for setting attributes is a little different than the package level
 	// exported logger. See Godoc.
 
-	env := GlobalConfig.Section("env").Key("env").String()
-	logDirName := GlobalConfig.Section("log").Key("log_dir_name").String()
-	logFileName := GlobalConfig.Section("log").Key("log_file_name").String()
+	env := GlobalConfig.GetString("env.env")
+	logDirName := GlobalConfig.GetString("log.log_dir_name")
+	logFileName := GlobalConfig.GetString("log.log_file_name")
 
 	Logger.Info(fmt.Sprintf("Env: [%s]", env))
 	switch env {
