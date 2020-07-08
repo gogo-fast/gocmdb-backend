@@ -14,19 +14,19 @@ func Login(c *gin.Context) {
 	err := c.ShouldBindJSON(&ulf)
 	if err != nil {
 		utils.Logger.Error(err)
-		utils.BadResponse(c, "非法登陆参数")
+		BadResponse(c, "非法登陆参数")
 		return
 	}
-	userDetails, err := models.DefalutUserManager.GetUserDetailByName(ulf.UserName)
+	userDetails, err := models.DefaultUserManager.GetUserDetailByName(ulf.UserName)
 	if err != nil {
 		utils.Logger.Error(err)
-		utils.BadResponse(c, "用户名或密码错误")
+		BadResponse(c, "用户名或密码错误")
 		return
 	}
 
 	if userDetails.UserStatus == utils.Deleted || userDetails.UserStatus == utils.Disabled {
 		utils.Logger.Info("invalid user")
-		utils.BadResponse(c, "无效用户")
+		BadResponse(c, "无效用户")
 		return
 	}
 
@@ -34,7 +34,7 @@ func Login(c *gin.Context) {
 
 	if utils.Md5SaltPass(ulf.Password, salt) != userDetails.Password {
 		utils.Logger.Info("username or password is incorrect")
-		utils.BadResponse(c, "用户名或密码错误")
+		BadResponse(c, "用户名或密码错误")
 		return
 	}
 
@@ -63,7 +63,7 @@ func Login(c *gin.Context) {
 		})
 	if err != nil {
 		utils.Logger.Error(err)
-		utils.BadResponse(c, "获取token失败")
+		BadResponse(c, "获取token失败")
 	}
 	maxAge := utils.GlobalConfig.GetInt("server.token_exp")
 	domain := utils.GlobalConfig.GetString("server.domain")

@@ -41,10 +41,11 @@ type UserFullInfo struct {
 
 type UserManager struct{}
 
-var DefalutUserManager *UserManager
+var DefaultUserManager *UserManager
 
 func init() {
-	DefalutUserManager = new(UserManager)
+	//DefalutUserManager = new(UserManager)
+	DefaultUserManager = NewUserManager()
 }
 
 func NewUserManager() *UserManager {

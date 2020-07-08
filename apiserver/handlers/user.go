@@ -11,104 +11,85 @@ import (
 	"strings"
 )
 
-func GetUser(c *gin.Context) {
+func GetUserByName(c *gin.Context) {
 
-	userIdStr := c.DefaultQuery("userId", utils.NoneUserId)
-	userName := c.DefaultQuery("userName", utils.UnknownUserName)
-	if userIdStr == utils.NoneUserId && userName == utils.UnknownUserName {
-		utils.Logger.Info("userId or userName must be set")
-		utils.BadResponse(c, "用户查询条件不能为空")
+	userName := c.Query("userName")
+	if userName == "" {
+		utils.Logger.Info("userName must be set")
+		EmptyUserResponse(c, "用户查询条件不能为空")
+		return
+	}
+
+	user, err := models.DefaultUserManager.GetUserByName(userName)
+	if err != nil {
+		utils.Logger.Error(err)
+		EmptyUserResponse(c, "非法用户名")
+		return
+	}
+	c.JSON(200, gin.H{
+		"status": "ok",
+		"msg":    "获取用户成功",
+		"data":   []*models.User{user},
+	})
+}
+
+func GetUserById(c *gin.Context) {
+
+	userIdStr := c.Query("userId")
+	if userIdStr == "" {
+		utils.Logger.Info("userId must be set")
+		EmptyUsersResponse(c, "用户查询条件不能为空")
 		return
 	}
 
 	var (
 		userId int
 		err    error
+		user   *models.User
 	)
-	if userIdStr != utils.NoneUserId {
-		userId, err = strconv.Atoi(userIdStr)
-		if err != nil {
-			utils.Logger.Error(err)
-			utils.BadResponse(c, "非法用户ID")
-			return
-		}
-
-		user, err := models.DefalutUserManager.GetUserById(userId)
-		if err != nil {
-			utils.Logger.Error(err)
-			utils.BadResponse(c, "获取用户失败")
-			return
-		}
-		c.JSON(200, gin.H{
-			"status": "ok",
-			"msg":    "获取用户成功",
-			"data":   user,
-		})
-	}
-
-	if userName != utils.UnknownUserName {
-		user, err := models.DefalutUserManager.GetUserByName(userName)
-		if err != nil {
-			utils.Logger.Error(err)
-			utils.BadResponse(c, "非法用户名")
-			return
-		}
-		c.JSON(200, gin.H{
-			"status": "ok",
-			"msg":    "获取用户成功",
-			"data":   user,
-		})
-	}
-}
-
-func GetUserDetailById(c *gin.Context) {
-	userId := utils.GetUserIdFromUrl(c)
-	if userId == utils.InvalidUid {
-		return
-	}
-	userDetails, err := models.DefalutUserManager.GetUserDetailById(userId)
+	userId, err = strconv.Atoi(userIdStr)
 	if err != nil {
 		utils.Logger.Error(err)
-		utils.BadResponse(c, "获取用户详情失败")
+		EmptyUserResponse(c, "非法用户ID")
+		return
+	}
+	user, err = models.DefaultUserManager.GetUserById(userId)
+	if err != nil {
+		utils.Logger.Error(err)
+		EmptyUserResponse(c, "获取用户失败")
 		return
 	}
 	c.JSON(200, gin.H{
 		"status": "ok",
-		"msg":    "获取用户详情成功",
-		"data":   userDetails,
+		"msg":    "获取用户成功",
+		"data":   []*models.User{user},
 	})
 
 }
 
 func GetUserList(c *gin.Context) {
-	var p, s int
-	var err error
-	deafultPageNum := utils.GlobalConfig.GetInt("server.default_page_num")
-	deafultPageSize := utils.GlobalConfig.GetInt("server.default_page_size")
-	page := c.DefaultQuery("page", "none")
-	size := c.DefaultQuery("size", "none")
+	var (
+		err  error
+		p, s int
+	)
+	defaultPageNum := utils.GlobalConfig.GetInt("server.default_page_num")
+	defaultPageSize := utils.GlobalConfig.GetInt("server.default_page_size")
+	page := c.Query("page")
+	size := c.Query("size")
 
 	p, err = strconv.Atoi(page)
 	if err != nil {
-		p = deafultPageNum
+		p = defaultPageNum
 	}
 	s, err = strconv.Atoi(size)
 	if err != nil {
-		s = deafultPageSize
+		s = defaultPageSize
 	}
 
-	total, users, pagination, err := models.DefalutUserManager.GetUserList(p, s)
+	total, users, pagination, err := models.DefaultUserManager.GetUserList(p, s)
 	if err != nil {
 		utils.Logger.Error(err)
-		c.JSON(200, gin.H{
-			"status": "ok",
-			"msg":    "获取用户列表失败",
-			"data": gin.H{
-				"total":          0,
-				"users":          nil,
-				"currentPageNum": -1,
-			},
-		})
+		EmptyUsersResponse(c, "获取用户列表失败")
 		return
 	}
 
@@ -124,25 +105,44 @@ func GetUserList(c *gin.Context) {
 
 }
 
+func GetUserDetailById(c *gin.Context) {
+	userId := utils.GetUserIdFromUrl(c)
+	if userId == utils.InvalidUid {
+		EmptyUserDetailsResponse(c, "获取用户详情失败")
+		return
+	}
+	userDetails, err := models.DefaultUserManager.GetUserDetailById(userId)
+	if err != nil {
+		utils.Logger.Error(err)
+		EmptyUserDetailsResponse(c, "获取用户详情失败")
+		return
+	}
+	c.JSON(200, gin.H{
+		"status": "ok",
+		"msg":    "获取用户详情成功",
+		"data":   userDetails,
+	})
+}
+
 func CreateUser(c *gin.Context) {
 	urf := &forms.UserRegisterForm{}
 	err := c.ShouldBindJSON(urf)
 	if err != nil {
 		utils.Logger.Error(err)
-		utils.BadResponse(c, "非法表单数据")
+		BadResponse(c, "非法表单数据")
 		return
 	}
 
-	_, err = models.DefalutUserManager.GetUserByName(urf.UserNmae)
+	_, err = models.DefaultUserManager.GetUserByName(urf.UserNmae)
 	if err == nil {
 		utils.Logger.Info("用户已经存在")
-		utils.BadResponse(c, "用户已经存在")
+		BadResponse(c, "用户已经存在")
 		return
 	}
-	uid, err := models.DefalutUserManager.CreateUser(urf)
+	uid, err := models.DefaultUserManager.CreateUser(urf)
 	if err != nil {
 		utils.Logger.Error(err)
-		utils.BadResponse(c, "用户创建失败")
+		BadResponse(c, "用户创建失败")
 		return
 	}
 
@@ -164,21 +164,21 @@ func UpdateDetailById(c *gin.Context) {
 	err := c.ShouldBindJSON(uuf)
 	if err != nil {
 		utils.Logger.Error(err)
-		utils.BadResponse(c, "非法表单数据")
+		BadResponse(c, "非法表单数据")
 		return
 	}
 
-	_, err = models.DefalutUserManager.GetUserById(userId)
+	_, err = models.DefaultUserManager.GetUserById(userId)
 	if err != nil {
-		utils.Logger.Error(err)
-		utils.BadResponse(c, "用户不存在")
+		utils.Logger.Info(err)
+		BadResponse(c, "用户不存在")
 		return
 	}
 
-	err = models.DefalutUserManager.UpdateDetailById(userId, uuf)
+	err = models.DefaultUserManager.UpdateDetailById(userId, uuf)
 	if err != nil {
 		utils.Logger.Error(err)
-		utils.BadResponse(c, "用户详情更新失败")
+		BadResponse(c, "用户详情更新失败")
 		return
 	}
 
@@ -199,21 +199,21 @@ func UpdateUserTypeById(c *gin.Context) {
 	err := c.ShouldBindJSON(utuf)
 	if err != nil {
 		utils.Logger.Error(err)
-		utils.BadResponse(c, "非法表单数据")
+		BadResponse(c, "非法表单数据")
 		return
 	}
 
-	_, err = models.DefalutUserManager.GetUserById(userId)
+	_, err = models.DefaultUserManager.GetUserById(userId)
 	if err != nil {
 		utils.Logger.Error(err)
-		utils.BadResponse(c, "用户不存在")
+		BadResponse(c, "用户不存在")
 		return
 	}
 
-	err = models.DefalutUserManager.UpdateUserTypeById(userId, utuf)
+	err = models.DefaultUserManager.UpdateUserTypeById(userId, utuf)
 	if err != nil {
 		utils.Logger.Error(err)
-		utils.BadResponse(c, "用户类型更新失败")
+		BadResponse(c, "用户类型更新失败")
 		return
 	}
 
@@ -234,20 +234,20 @@ func UpdateUserStatusById(c *gin.Context) {
 	err := c.ShouldBindJSON(usuf)
 	if err != nil {
 		utils.Logger.Error(err)
-		utils.BadResponse(c, "非法表单数据")
+		BadResponse(c, "非法表单数据")
 		return
 	}
 
-	_, err = models.DefalutUserManager.GetUserById(userId)
+	_, err = models.DefaultUserManager.GetUserById(userId)
 	if err != nil {
 		utils.Logger.Error(err)
-		utils.BadResponse(c, "用户不存在")
+		BadResponse(c, "用户不存在")
 		return
 	}
 
-	err = models.DefalutUserManager.UpdateUserStatusById(userId, usuf)
+	err = models.DefaultUserManager.UpdateUserStatusById(userId, usuf)
 	if err != nil {
-		utils.BadResponse(c, "用户状态更新失败")
+		BadResponse(c, "用户状态更新失败")
 		return
 	}
 
@@ -263,27 +263,28 @@ func UpdateUserStatusById(c *gin.Context) {
 func UpdatePasswordById(c *gin.Context) {
 	userId := utils.GetUserIdFromUrl(c)
 	if userId == utils.InvalidUid {
+		BadResponse(c, "非法用户id")
 		return
 	}
 	upuf := &forms.PasswordUpdateForm{}
 	err := c.ShouldBindJSON(upuf)
 	if err != nil {
 		utils.Logger.Error(err)
-		utils.BadResponse(c, "非法表单数据")
+		BadResponse(c, "非法表单数据")
 		return
 	}
 
-	_, err = models.DefalutUserManager.GetUserById(userId)
+	_, err = models.DefaultUserManager.GetUserById(userId)
 	if err != nil {
 		utils.Logger.Error(err)
-		utils.BadResponse(c, "用户不存在")
+		BadResponse(c, "用户不存在")
 		return
 	}
 
-	err = models.DefalutUserManager.UpdatePasswordById(userId, upuf)
+	err = models.DefaultUserManager.UpdatePasswordById(userId, upuf)
 	if err != nil {
 		utils.Logger.Error(err)
-		utils.BadResponse(c, "改密失败")
+		BadResponse(c, "改密失败")
 		return
 	}
 
@@ -311,7 +312,7 @@ func UploadAvatar(c *gin.Context) {
 	file, err := c.FormFile("file")
 	if err != nil {
 		utils.Logger.Error(fmt.Sprintf("parse form file failed, %s", err))
-		utils.BadResponse(c, "解析上传文件失败")
+		BadResponse(c, "解析上传文件失败")
 		return
 	}
 
@@ -321,7 +322,7 @@ func UploadAvatar(c *gin.Context) {
 	if len(cs) > 1 {
 		suffix = cs[1]
 	} else {
-		utils.BadResponse(c, "获取文件MIMETYPE失败")
+		BadResponse(c, "获取文件MIMETYPE失败")
 		return
 	}
 
@@ -331,7 +332,7 @@ func UploadAvatar(c *gin.Context) {
 	case "png":
 		suffix = ".png"
 	default:
-		utils.BadResponse(c, "仅支持 jpeg/png")
+		BadResponse(c, "仅支持 jpeg/png")
 		return
 	}
 
@@ -349,10 +350,10 @@ func UploadAvatar(c *gin.Context) {
 
 	imgUrl := fmt.Sprintf("http://%s:%s/img%s", host, port, fmt.Sprintf("%s/%s/%s", userStaticUrl, fmt.Sprintf("%d", userId), newFileName))
 
-	err = models.DefalutUserManager.UpdateAvatarById(imgUrl, userId)
+	err = models.DefaultUserManager.UpdateAvatarById(imgUrl, userId)
 	if err != nil {
 		utils.Logger.Error(err)
-		utils.BadResponse(c, "文件路径写入数据库失败")
+		BadResponse(c, "文件路径写入数据库失败")
 		return
 	}
 
@@ -360,9 +361,7 @@ func UploadAvatar(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"status": "ok",
 		"msg":    "upload file success",
-		"data": gin.H{
-			"fileUrl": imgUrl,
-		},
+		"data":   gin.H{"fileUrl": imgUrl,},
 	})
 
 }

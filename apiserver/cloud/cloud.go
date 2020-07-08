@@ -1,19 +1,48 @@
 package cloud
 
-type PlatformMgr interface {
+import (
+	"sync"
+)
+
+type CCloud interface {
 	Name() string
 	PlatType() string
+	Init(DefaultRegionId, AccessKeyId, AccessKeySecret string)
 	TestConn() error
-	Init(AccessKeyId, AccessKeySecret string)
-	CreateInstance(regionId, uuid string) (string, error)
-	RunInstance(regionId, uuid string) (string, error)
-	GetInstanceAttribute(regionId, instanceId string) (*Instance, error)
-	GetInstanceList(regionId string) ([]*Instance, error)
+	GetRegions() ([]*Region, error)
+	GetZones(regionId string) ([]*Zone, error)
+	GetSecurityGroups(regionId string) ([]*SecurityGroup, error)
+	GetInstance(regionId, instanceId string) (*Instance, error)
+	GetInstanceListPerPage(regionId string, page, size int) ([]*Instance, int, error)
+	GetAllInstance(regionId string) ([]*Instance, error)
+	StartInstance(regionId, instanceId string) error
+	StopInstance(regionId, instanceId string) error
+	RebootInstance(regionId, instanceId string) error
+	DeleteInstance(regionId, instanceId string) error
 }
 
-type Instance interface {
-	StartInstance(instanceId string) error
-	StopInstance(instanceId string) error
-	RebootInstance(instanceId string) error
-	DeleteInstance(instanceId string) error
+type CCloudMgr struct {
+	rwLock sync.RWMutex
+	Clouds map[string]CCloud
 }
+
+func (cm *CCloudMgr) Register(c CCloud) {
+	cm.rwLock.Lock()
+	defer cm.rwLock.Unlock()
+	cm.Clouds[c.PlatType()] = c
+}
+
+func (cm *CCloudMgr) GetCloud(platType string) (CCloud, bool) {
+	cm.rwLock.RLock()
+	defer cm.rwLock.RUnlock()
+	cloud, ok := cm.Clouds[platType]
+	return cloud, ok
+}
+
+func NewCloudMgr() *CCloudMgr {
+	return &CCloudMgr{
+		Clouds: make(map[string]CCloud),
+	}
+}
+
+var DefaultCloudMgr = NewCloudMgr()

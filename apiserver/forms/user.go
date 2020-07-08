@@ -44,6 +44,4 @@ type LoginForm struct {
 
 type AuthUserForm struct {
 	UserId     int    `json:"userId,string"`
-	//UserType   int    `json:"userType,string"`
-	//UserStatus int    `json:"userStatus,string"`
 }

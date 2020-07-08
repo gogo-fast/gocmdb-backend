@@ -4,7 +4,8 @@ server:
   domain: cmdb.com
   token_exp: 36000 # seconds
   default_page_num: 1
-  default_page_size: 5
+  default_page_size: 10
+  websocket_update_interval: 10 # seconds
 
 log:
   log_dir_name: logs
@@ -13,7 +14,7 @@ log:
 
 env:
   # env: dev|product
-  env: product
+  env: dev
 
 
 filesystem:
@@ -72,11 +73,24 @@ mysql:
   max_idle: 5
 
 
+# default cloud platform: aliyun/tencent
+#default_cloud: aliyun
+
+
 aliyun:
-  default_region_id: cn-zhangjiakou
-  acess_key_id: LTAI4G5eagkrwTs1Rcd8pZHz
-  acess_key_secret: 8F1k3W2CSkW09DfvKHeS9QmhigMtrF
+  default_region_id: cn-beijing
+  access_key_id: eruovnwrRTRGsfstet
+  access_key_secret: HTfv7974lsvlsghlrjglSDersd66
+
+tencent:
+  default_region_id:
+  access_key_id:
+  access_key_secret:
+
+update_host_record:
+  interval: 5 # seconds
 
 
-
+agent:
+  token: 111666
 

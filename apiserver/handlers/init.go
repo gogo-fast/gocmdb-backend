@@ -41,7 +41,8 @@ func init() {
 			*/
 			user.GET("/list", GetUserList)
 
-			user.GET("", GetUser)
+			user.GET("/name", GetUserByName)
+			user.GET("/id", GetUserById)
 			user.POST("", middlewares.AuthAdmin, CreateUser)
 			user.OPTIONS("", middlewares.AuthAdmin, CreateUser)
 
@@ -62,10 +63,42 @@ func init() {
 			user.OPTIONS("/avatar", middlewares.AuthCurrentUser, UploadAvatar)
 		}
 
-		cloud := v1.Group("/cloud", middlewares.BaseAuth)
+		cloud := v1.Group("/cloud")
 		{
-			cloud.GET("/regions", GetRegions)
-			cloud.GET("/zones", GetZones)
+			cloud.GET("/regions", middlewares.BaseAuth, GetRegions)
+			cloud.GET("/zones", middlewares.BaseAuth, GetZones)
+			cloud.GET("/sgs", middlewares.BaseAuth, GetSecurityGroups)
+			cloud.GET("/instance/all", middlewares.BaseAuth, GetAllInstance)
+			cloud.GET("/instance/list", middlewares.BaseAuth, GetInstanceList)
+			cloud.GET("/instance", middlewares.BaseAuth, GetInstance)
+			cloud.POST("/instance/start", middlewares.BaseAuth, StartInstance)
+			cloud.POST("/instance/stop", middlewares.BaseAuth, StopInstance)
+			cloud.POST("/instance/reboot", middlewares.BaseAuth, RebootInstance)
+			cloud.POST("/instance/delete", middlewares.BaseAuth, DeleteInstance)
+
+			ws := cloud.Group("/ws")
+			{
+				ws.GET("/instance/list", middlewares.BaseAuth, WsGetInstanceList)
+				ws.GET("/instance", middlewares.BaseAuth, WsGetInstance)
+			}
+		}
+
+		host := v1.Group("/host")
+		{
+
+			host.GET("", middlewares.BaseAuth, GetHost)
+			host.POST("/stop", middlewares.BaseAuth, StopHost)
+			host.POST("/heartbeat", middlewares.AuthAgent, Heartbeat)
+			host.POST("/register", middlewares.AuthAgent, Register)
+			host.POST("/delete", middlewares.BaseAuth, middlewares.AuthAdmin, DeleteHost)
+			host.GET("/list", middlewares.BaseAuth, GetHostList)
+
+			ws := host.Group("/ws")
+			{
+				ws.GET("", middlewares.BaseAuth, WsGetHost)
+				ws.GET("/list", middlewares.BaseAuth, WsGetHostList)
+			}
+
 		}
 	}
 }

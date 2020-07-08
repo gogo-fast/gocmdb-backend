@@ -5,28 +5,26 @@ import (
 	"gogo-cmdb/apiserver/utils"
 )
 
-
-func GetSuperClaims(c *gin.Context) (*utils.AuthCustomClaims ,bool) {
+func GetSuperClaims(c *gin.Context) (*utils.AuthCustomClaims, bool) {
 	claims, ok := c.Get("claims")
 	if !ok {
 		utils.Logger.Info("上级认证信息缺失")
-		utils.BadResponse(c, "上级认证信息缺失")
+		BadResponse(c, "上级认证信息缺失")
 		return nil, false
 	}
 	cla, ok := claims.(*utils.AuthCustomClaims)
 	if !ok {
-		utils.BadResponse(c, "上级认证信息类型不符")
+		BadResponse(c, "上级认证信息类型不符")
 		return nil, false
 	}
 	return cla, true
 }
 
-
 func BaseAuth(c *gin.Context) {
 	tokeStr, err := c.Cookie("authToken")
 	if err != nil {
 		utils.Logger.Error(err)
-		utils.BadResponse(c, "认证信息缺失")
+		BadResponse(c, "认证信息缺失,请重新登录")
 		c.Abort()
 		return
 	}
@@ -35,7 +33,7 @@ func BaseAuth(c *gin.Context) {
 
 	if claims == nil {
 		utils.Logger.Error(err)
-		utils.BadResponse(c, "认证失败")
+		BadResponse(c, "认证失败")
 		c.Abort()
 		return
 	}
@@ -44,7 +42,15 @@ func BaseAuth(c *gin.Context) {
 	c.Next()
 }
 
-
+func AuthAgent(c *gin.Context) {
+	token := c.Query("token")
+	if token != utils.GlobalConfig.GetString("agent.token") {
+		BadResponse(c, "Invalid token")
+		c.Abort()
+		return
+	}
+	c.Next()
+}
 
 func AuthAdmin(c *gin.Context) {
 	claims, ok := GetSuperClaims(c)
@@ -54,7 +60,7 @@ func AuthAdmin(c *gin.Context) {
 	}
 
 	if claims.UserType != utils.AdminUser {
-		utils.BadResponse(c, "只有管理员有此权限")
+		BadResponse(c, "只有管理员有此权限")
 		c.Abort()
 		return
 	}
@@ -69,15 +75,15 @@ func AuthCurrentUser(c *gin.Context) {
 		return
 	}
 	currentUserId := claims.UserId
+	UserIdFromUrl := utils.GetUserIdFromUrl(c)
 
-	userId := utils.GetUserIdFromUrl(c)
-	if userId == utils.InvalidUid {
+	if UserIdFromUrl == utils.InvalidUid {
+		BadResponse(c, "用户id非法或缺失")
 		c.Abort()
 		return
 	}
-
-	if userId != currentUserId {
-		utils.BadResponse(c, "只用当前用户有此权限")
+	if UserIdFromUrl != currentUserId {
+		BadResponse(c, "只用当前用户有此权限")
 		c.Abort()
 		return
 	}
@@ -95,15 +101,16 @@ func AuthCurrentAndAdmin(c *gin.Context) {
 
 	currentUserId := claims.UserId
 	currentUseType := claims.UserType
+	UserIdFromUrl := utils.GetUserIdFromUrl(c)
 
-	userId := utils.GetUserIdFromUrl(c)
-	if userId == utils.InvalidUid {
+	if UserIdFromUrl == utils.InvalidUid {
+		BadResponse(c, "当前用户id非法或缺失")
 		c.Abort()
 		return
 	}
 
-	if userId != currentUserId && currentUseType != utils.AdminUser {
-		utils.BadResponse(c, "只用当前用户和管理员有此权限")
+	if UserIdFromUrl != currentUserId && currentUseType != utils.AdminUser {
+		BadResponse(c, "只用当前用户和管理员有此权限")
 		c.Abort()
 		return
 	}

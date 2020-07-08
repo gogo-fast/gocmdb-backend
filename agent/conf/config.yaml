@@ -1,0 +1,23 @@
+server:
+  host: go.cmdb.com
+  port: 8000
+url: http://go.cmdb.com:8000/v1/host
+token: 111666
+
+log:
+  log_dir_name: logs
+  log_file_name: agent.log
+
+uuid_file: agent.uuid
+pid_file: agent.pid
+
+env:
+   # dev|product
+  env: dev
+#  env: product
+
+heartbeat:
+  interval: 5 # seconds
+
+register:
+  interval: 10 # seconds

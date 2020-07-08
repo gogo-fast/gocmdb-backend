@@ -18,10 +18,10 @@ func Md5SaltPass(pass string) string {
 
 func main() {
 	var (
-		passwod string
+		password string
 		help    bool
 	)
-	flag.StringVar(&passwod, "p", "", "the plain text password used to generate crypt password")
+	flag.StringVar(&password, "p", "", "the plain text password used to generate crypt password")
 	flag.BoolVar(&help, "h", false, "help")
 
 	flag.Usage = func() {
@@ -36,10 +36,10 @@ Options:
 
 	flag.Parse()
 
-	if help || passwod == "" {
+	if help || password == "" {
 		flag.Usage()
 		return
 	}
 
-	fmt.Println(Md5SaltPass(passwod))
+	fmt.Println(Md5SaltPass(password))
 }
