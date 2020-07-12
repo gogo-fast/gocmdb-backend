@@ -20,7 +20,7 @@ FROM scratch
 
 ENV PATH="/cmdb/bin:$PATH"
 COPY --from=builder  /go/release/bin/  /cmdb/bin/
-COPY apiserver/conf/config.ini  /cmdb/conf/config.ini
+COPY apiserver/conf/config.yaml  /cmdb/conf/config.yaml
 
 
 EXPOSE 8000
