@@ -12,6 +12,8 @@ type CCloud interface {
 	GetRegions() ([]*Region, error)
 	GetZones(regionId string) ([]*Zone, error)
 	GetSecurityGroups(regionId string) ([]*SecurityGroup, error)
+	GetInstancesStatus(regionId string, instanceIds []string) ([]*InstanceStaus, error)
+	GetAllInstancesStatus(regionId string) ([]*InstanceStaus, error)
 	GetInstance(regionId, instanceId string) (*Instance, error)
 	GetInstanceListPerPage(regionId string, page, size int) ([]*Instance, int, error)
 	GetAllInstance(regionId string) ([]*Instance, error)
@@ -19,6 +21,7 @@ type CCloud interface {
 	StopInstance(regionId, instanceId string) error
 	RebootInstance(regionId, instanceId string) error
 	DeleteInstance(regionId, instanceId string) error
+	InstanceStatusTransform(string) string
 }
 
 type CCloudMgr struct {

@@ -1,5 +1,19 @@
 package cloud
 
+const (
+	StatusPending = "PENDING"
+	StatusLaunchFailed = "CREATE_FAILED"
+	StatusRunning = "RUNNING"
+	StatusStopped = "STOPPED"
+	StatusStarting = "STARTING"
+	StatusStopping = "STOPPING"
+	StatusRebooting = "REBOOTING"
+	StatusShutdown = "SHUTDOWN"
+	StatusDeleting = "DELETING"
+	StatusUnknown = "UNKNOWN"
+)
+
+
 type Region struct {
 	RegionId   string
 	RegionName string
@@ -65,14 +79,9 @@ type InstanceType struct {
 	InstanceTypeFamily  string
 }
 
-
-
-
-
-
-
-
-
-
+type InstanceStaus struct {
+	InstanceId    string
+	InstanceState string
+}
 
 

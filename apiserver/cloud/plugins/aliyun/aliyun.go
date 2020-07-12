@@ -50,20 +50,10 @@ func (m *AliMgr) TestConn() error {
 	return nil
 }
 
-func (m *AliMgr) SetRegionId(regionId string) {
-	m.DefaultRegionId = regionId
-}
-
-func (m *AliMgr) SetRageNum(page int) {
-	m.Page = page
-}
-func (m *AliMgr) SetRageSize(size int) {
-	m.Size = size
-}
 func (m *AliMgr) GetRegions() ([]*cloud.Region, error) {
 	client, err := ecs.NewClientWithAccessKey(m.DefaultRegionId, m.AccessKeyId, m.AccessKeySecret)
 	if err != nil {
-		utils.Logger.Error("init client failed")
+		utils.Logger.Error("init aliyun client failed")
 		return nil, err
 	}
 
@@ -72,11 +62,11 @@ func (m *AliMgr) GetRegions() ([]*cloud.Region, error) {
 
 	response, err := client.DescribeRegions(request)
 	if err != nil {
-		utils.Logger.Error(fmt.Sprintf("get regions of [%s] failed, err: %s", m.CloudType, err))
+		utils.Logger.Error(fmt.Sprintf("An API error has returned on [%s]: %s", m.CloudType, err))
 		return nil, err
 	}
 
-	var regionList = make([]*cloud.Region, 0)
+	var regionList = make([]*cloud.Region, 0, 30)
 	for _, r := range response.Regions.Region {
 		rg := &cloud.Region{}
 		rg.RegionId = r.RegionId
@@ -89,7 +79,7 @@ func (m *AliMgr) GetRegions() ([]*cloud.Region, error) {
 func (m *AliMgr) GetZones(regionId string) ([]*cloud.Zone, error) {
 	client, err := ecs.NewClientWithAccessKey(regionId, m.AccessKeyId, m.AccessKeySecret)
 	if err != nil {
-		fmt.Println("init client failed")
+		utils.Logger.Error("init aliyun client failed")
 		return nil, err
 	}
 	request := ecs.CreateDescribeZonesRequest()
@@ -97,10 +87,10 @@ func (m *AliMgr) GetZones(regionId string) ([]*cloud.Zone, error) {
 
 	response, err := client.DescribeZones(request)
 	if err != nil {
-		fmt.Print(err.Error())
+		utils.Logger.Error(fmt.Sprintf("An API error has returned on [%s]: %s", m.CloudType, err))
 		return nil, err
 	}
-	zoneList := make([]*cloud.Zone, 0)
+	zoneList := make([]*cloud.Zone, 0, 5)
 
 	for _, z := range response.Zones.Zone {
 		zone := &cloud.Zone{}
@@ -113,18 +103,18 @@ func (m *AliMgr) GetZones(regionId string) ([]*cloud.Zone, error) {
 
 func (m *AliMgr) GetSecurityGroups(regionId string) ([]*cloud.SecurityGroup, error) {
 	var (
-		limit       = 100
+		limit       = 50 //  max page size of DescribeSecurityGroups of aliyun is 50.
 		offset      = 1
 		currentPage = 1
 		total       = 2
 	)
 	client, err := ecs.NewClientWithAccessKey(regionId, m.AccessKeyId, m.AccessKeySecret)
 	if err != nil {
-		fmt.Println("init client failed")
+		fmt.Println("init aliyun client failed")
 		return nil, err
 	}
 
-	var sgs = make([]*cloud.SecurityGroup, 0, total)
+	var sgs = make([]*cloud.SecurityGroup, 0, limit)
 	for offset < total {
 		request := ecs.CreateDescribeSecurityGroupsRequest()
 		request.Scheme = "https"
@@ -133,7 +123,7 @@ func (m *AliMgr) GetSecurityGroups(regionId string) ([]*cloud.SecurityGroup, err
 		request.PageSize = requests.NewInteger(limit)
 		response, err := client.DescribeSecurityGroups(request)
 		if err != nil {
-			fmt.Println(err)
+			utils.Logger.Error(fmt.Sprintf("An API error has returned on [%s]: %s", m.CloudType, err))
 			return nil, err
 		}
 
@@ -150,10 +140,90 @@ func (m *AliMgr) GetSecurityGroups(regionId string) ([]*cloud.SecurityGroup, err
 	return sgs, nil
 }
 
+func (m *AliMgr) GetInstancesStatus(regionId string, instanceIds []string) ([]*cloud.InstanceStaus, error) {
+	var (
+		total              int = 50
+		p                  int = 1
+		s                  int = 50 //  max page size of DescribeInstanceStatus of aliyun is 50.
+		InstanceStatusList     = make([]*cloud.InstanceStaus, 0, len(instanceIds))
+	)
+
+	client, err := ecs.NewClientWithAccessKey(regionId, m.AccessKeyId, m.AccessKeySecret)
+	if err != nil {
+		utils.Logger.Error("init aliyun client failed")
+		return nil, err
+	}
+
+	request := ecs.CreateDescribeInstanceStatusRequest()
+	request.Scheme = "https"
+	request.InstanceId = &instanceIds
+	for p*s <= total {
+		request.PageSize = requests.NewInteger(s)
+		request.PageNumber = requests.NewInteger(p)
+		response, err := client.DescribeInstanceStatus(request)
+		if err != nil {
+			utils.Logger.Error(fmt.Sprintf("An API error has returned on [%s]: %s", m.CloudType, err))
+			return InstanceStatusList, err
+		}
+		total = response.TotalCount
+		p = response.PageNumber
+		s = response.PageSize
+		p ++
+		for _, v := range response.InstanceStatuses.InstanceStatus {
+			s := &cloud.InstanceStaus{
+				InstanceId:    v.InstanceId,
+				InstanceState: m.InstanceStatusTransform(v.Status),
+			}
+			InstanceStatusList = append(InstanceStatusList, s)
+		}
+	}
+	return InstanceStatusList, nil
+}
+
+func (m *AliMgr) GetAllInstancesStatus(regionId string) ([]*cloud.InstanceStaus, error) {
+	var (
+		total              = 50
+		p                  = 1
+		s                  = 50 //  max page size of DescribeInstanceStatus of aliyun is 50.
+		InstanceStatusList = make([]*cloud.InstanceStaus, 0, 50)
+	)
+
+	client, err := ecs.NewClientWithAccessKey(regionId, m.AccessKeyId, m.AccessKeySecret)
+	if err != nil {
+		utils.Logger.Error("init aliyun client failed")
+		return nil, err
+	}
+
+	request := ecs.CreateDescribeInstanceStatusRequest()
+	request.Scheme = "https"
+
+	for p*s <= total {
+		request.PageNumber = requests.NewInteger(p)
+		request.PageSize = requests.NewInteger(s)
+		response, err := client.DescribeInstanceStatus(request)
+		if err != nil {
+			utils.Logger.Error(fmt.Sprintf("An API error has returned on [%s]: %s", m.CloudType, err))
+			return InstanceStatusList, err
+		}
+		total = response.TotalCount
+		p = response.PageNumber
+		s = response.PageSize
+		p ++
+		for _, v := range response.InstanceStatuses.InstanceStatus {
+			s := &cloud.InstanceStaus{
+				InstanceId:    v.InstanceId,
+				InstanceState: m.InstanceStatusTransform(v.Status),
+			}
+			InstanceStatusList = append(InstanceStatusList, s)
+		}
+	}
+	return InstanceStatusList, nil
+}
+
 func (m *AliMgr) GetInstance(regionId, instanceId string) (*cloud.Instance, error) {
 	client, err := ecs.NewClientWithAccessKey(regionId, m.AccessKeyId, m.AccessKeySecret)
 	if err != nil {
-		utils.Logger.Error("init client failed")
+		utils.Logger.Error("init aliyun client failed")
 		return nil, err
 	}
 	request := ecs.CreateDescribeInstanceAttributeRequest()
@@ -161,7 +231,7 @@ func (m *AliMgr) GetInstance(regionId, instanceId string) (*cloud.Instance, erro
 	request.InstanceId = instanceId
 	response, err := client.DescribeInstanceAttribute(request)
 	if err != nil {
-		utils.Logger.Error(fmt.Sprintf("get instance [%s] from region:%s of cloud:%s failed, err:%s", instanceId, regionId, m.CloudType, err))
+		utils.Logger.Error(fmt.Sprintf("An API error has returned on [%s]: %s", m.CloudType, err))
 		return nil, err
 	}
 
@@ -172,7 +242,7 @@ func (m *AliMgr) GetInstance(regionId, instanceId string) (*cloud.Instance, erro
 	instance.HostName = response.HostName
 	instance.RegionId = response.RegionId
 	instance.ZoneId = response.ZoneId
-	instance.Status = response.Status
+	instance.Status = m.InstanceStatusTransform(response.Status)
 	instance.OSName = "Api UNSupport"
 	instance.Cpu = response.Cpu
 	instance.Memory = response.Memory
@@ -187,13 +257,9 @@ func (m *AliMgr) GetInstance(regionId, instanceId string) (*cloud.Instance, erro
 	publicIpList := response.PublicIpAddress.IpAddress
 	allPublicIpList := make([]string, 0, len(publicIpList)+1)
 	if response.EipAddress.IpAddress != "" {
-		m.mutex.Lock()
 		allPublicIpList = append(allPublicIpList, response.EipAddress.IpAddress)
-		m.mutex.Unlock()
 	}
-	m.mutex.Lock()
 	allPublicIpList = append(allPublicIpList, publicIpList...)
-	m.mutex.Unlock()
 	publicIps, _ := json.Marshal(allPublicIpList)
 	instance.PublicIpAddress = string(publicIps)
 
@@ -206,7 +272,7 @@ func (m *AliMgr) GetInstance(regionId, instanceId string) (*cloud.Instance, erro
 func (m *AliMgr) GetInstanceListPerPage(regionId string, page, size int) ([]*cloud.Instance, int, error) {
 	client, err := ecs.NewClientWithAccessKey(regionId, m.AccessKeyId, m.AccessKeySecret)
 	if err != nil {
-		utils.Logger.Error("init client failed")
+		utils.Logger.Error("init aliyun client failed")
 		return nil, 0, err
 	}
 	request := ecs.CreateDescribeInstancesRequest()
@@ -217,7 +283,7 @@ func (m *AliMgr) GetInstanceListPerPage(regionId string, page, size int) ([]*clo
 	//fmt.Println("request.PageNumber:", request.PageNumber, "request.PageSize:" , request.PageSize)
 	response, err := client.DescribeInstances(request)
 	if err != nil {
-		utils.Logger.Error(fmt.Sprintf("get instance list from region:%s of cloud:%s failed, err:%s", regionId, m.CloudType, err))
+		utils.Logger.Error(fmt.Sprintf("An API error has returned on [%s]: %s", m.CloudType, err))
 		return nil, 0, err
 	}
 
@@ -231,7 +297,7 @@ func (m *AliMgr) GetInstanceListPerPage(regionId string, page, size int) ([]*clo
 		instance.HostName = v.HostName
 		instance.RegionId = v.RegionId
 		instance.ZoneId = v.ZoneId
-		instance.Status = v.Status
+		instance.Status = m.InstanceStatusTransform(v.Status)
 		instance.OSName = v.OSName
 		instance.Cpu = v.Cpu
 		instance.Memory = v.Memory
@@ -246,21 +312,16 @@ func (m *AliMgr) GetInstanceListPerPage(regionId string, page, size int) ([]*clo
 		publicIpList := v.PublicIpAddress.IpAddress
 		allPublicIpList := make([]string, 0, len(publicIpList)+1)
 		if v.EipAddress.IpAddress != "" {
-			m.mutex.Lock()
 			allPublicIpList = append(allPublicIpList, v.EipAddress.IpAddress)
-			m.mutex.Unlock()
 		}
-		m.mutex.Lock()
 		allPublicIpList = append(allPublicIpList, publicIpList...)
-		m.mutex.Unlock()
 		publicIps, _ := json.Marshal(allPublicIpList)
 		instance.PublicIpAddress = string(publicIps)
 
 		instance.InternetMaxBandwidthIn = v.InternetMaxBandwidthIn
 		instance.InternetMaxBandwidthOut = v.InternetMaxBandwidthOut
-		m.mutex.Lock()
+
 		instanceList = append(instanceList, instance)
-		m.mutex.Unlock()
 	}
 	return instanceList, response.TotalCount, nil
 }
@@ -270,7 +331,7 @@ func (m *AliMgr) GetAllInstance(regionId string) ([]*cloud.Instance, error) {
 		err          error
 		total        int
 		p            = 1
-		s            = 100 //  max page size of aliyun is 100.
+		s            = 100 // max page size of DescribeInstances of aliyun is 100.
 		instanceList []*cloud.Instance
 		instances    []*cloud.Instance
 	)
@@ -278,9 +339,10 @@ func (m *AliMgr) GetAllInstance(regionId string) ([]*cloud.Instance, error) {
 	instanceList = make([]*cloud.Instance, 0, 100)
 	for {
 		instances, total, err = m.GetInstanceListPerPage(regionId, p, s)
-		m.mutex.Lock()
+		if err != nil {
+			break
+		}
 		instanceList = append(instanceList, instances...)
-		m.mutex.Unlock()
 		if p*s >= total {
 			break
 		}
@@ -292,7 +354,7 @@ func (m *AliMgr) GetAllInstance(regionId string) ([]*cloud.Instance, error) {
 func (m *AliMgr) StartInstance(regionId, instanceId string) error {
 	client, err := ecs.NewClientWithAccessKey(regionId, m.AccessKeyId, m.AccessKeySecret)
 	if err != nil {
-		utils.Logger.Error("init client failed")
+		utils.Logger.Error("init aliyun client failed")
 		return err
 	}
 	request := ecs.CreateStartInstanceRequest()
@@ -302,7 +364,7 @@ func (m *AliMgr) StartInstance(regionId, instanceId string) error {
 
 	_, err = client.StartInstance(request)
 	if err != nil {
-		utils.Logger.Error(fmt.Sprintf("start instance [%s] failed", instanceId))
+		utils.Logger.Error(fmt.Sprintf("An API error has returned on [%s]: %s", m.CloudType, err))
 		return err
 	}
 	return nil
@@ -311,7 +373,7 @@ func (m *AliMgr) StartInstance(regionId, instanceId string) error {
 func (m *AliMgr) StopInstance(regionId, instanceId string) error {
 	client, err := ecs.NewClientWithAccessKey(regionId, m.AccessKeyId, m.AccessKeySecret)
 	if err != nil {
-		utils.Logger.Error("init client failed")
+		utils.Logger.Error("init aliyun client failed")
 		return err
 	}
 	request := ecs.CreateStopInstanceRequest()
@@ -321,7 +383,7 @@ func (m *AliMgr) StopInstance(regionId, instanceId string) error {
 
 	_, err = client.StopInstance(request)
 	if err != nil {
-		utils.Logger.Error(fmt.Sprintf("stop instance [%s] failed", instanceId))
+		utils.Logger.Error(fmt.Sprintf("An API error has returned on [%s]: %s", m.CloudType, err))
 		return err
 	}
 	return nil
@@ -330,7 +392,7 @@ func (m *AliMgr) StopInstance(regionId, instanceId string) error {
 func (m *AliMgr) RebootInstance(regionId, instanceId string) error {
 	client, err := ecs.NewClientWithAccessKey(regionId, m.AccessKeyId, m.AccessKeySecret)
 	if err != nil {
-		utils.Logger.Error("init client failed")
+		utils.Logger.Error("init aliyun client failed")
 		return err
 	}
 	request := ecs.CreateRebootInstanceRequest()
@@ -340,7 +402,7 @@ func (m *AliMgr) RebootInstance(regionId, instanceId string) error {
 
 	_, err = client.RebootInstance(request)
 	if err != nil {
-		utils.Logger.Error(fmt.Sprintf("reboot instance [%s] failed", instanceId))
+		utils.Logger.Error(fmt.Sprintf("An API error has returned on [%s]: %s", m.CloudType, err))
 		return err
 	}
 	return nil
@@ -349,7 +411,7 @@ func (m *AliMgr) RebootInstance(regionId, instanceId string) error {
 func (m *AliMgr) DeleteInstance(regionId, instanceId string) error {
 	client, err := ecs.NewClientWithAccessKey(regionId, m.AccessKeyId, m.AccessKeySecret)
 	if err != nil {
-		utils.Logger.Error("init client failed")
+		utils.Logger.Error("init aliyun client failed")
 		return err
 	}
 	request := ecs.CreateDeleteInstanceRequest()
@@ -359,10 +421,24 @@ func (m *AliMgr) DeleteInstance(regionId, instanceId string) error {
 
 	_, err = client.DeleteInstance(request)
 	if err != nil {
-		utils.Logger.Error(fmt.Sprintf("delete instance [%s] failed", instanceId))
+		utils.Logger.Error(fmt.Sprintf("An API error has returned on [%s]: %s", m.CloudType, err))
 		return err
 	}
 	return nil
+}
+
+func (m *AliMgr) InstanceStatusTransform(status string) string {
+	InstanceStatusMap := map[string]string{
+		"Pending":  cloud.StatusPending,
+		"Running":  cloud.StatusRunning,
+		"Stopped":  cloud.StatusStopped,
+		"Starting": cloud.StatusStarting,
+		"Stopping": cloud.StatusStopping,
+	}
+	if s, ok := InstanceStatusMap[status]; ok {
+		return s
+	}
+	return cloud.StatusUnknown
 }
 
 func init() {

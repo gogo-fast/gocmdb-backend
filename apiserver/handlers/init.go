@@ -71,6 +71,8 @@ func init() {
 			cloud.GET("/instance/all", middlewares.BaseAuth, GetAllInstance)
 			cloud.GET("/instance/list", middlewares.BaseAuth, GetInstanceList)
 			cloud.GET("/instance", middlewares.BaseAuth, GetInstance)
+			cloud.GET("/instance/status/all", middlewares.BaseAuth, GetAllInstanceStatusList)
+			cloud.POST("/instance/status/list", middlewares.BaseAuth, LoadInstanceStatusList)
 			cloud.POST("/instance/start", middlewares.BaseAuth, StartInstance)
 			cloud.POST("/instance/stop", middlewares.BaseAuth, StopInstance)
 			cloud.POST("/instance/reboot", middlewares.BaseAuth, RebootInstance)
@@ -79,6 +81,7 @@ func init() {
 			ws := cloud.Group("/ws")
 			{
 				ws.GET("/instance/list", middlewares.BaseAuth, WsGetInstanceList)
+				ws.GET("/instance/status/all", middlewares.BaseAuth, WsGetAllInstanceStatusList)
 				ws.GET("/instance", middlewares.BaseAuth, WsGetInstance)
 			}
 		}

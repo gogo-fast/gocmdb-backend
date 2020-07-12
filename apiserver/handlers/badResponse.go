@@ -70,6 +70,18 @@ func EmptyRegionsResponse(c *gin.Context, msg string) {
 	})
 }
 
+func EmptyInstancesStatusResponse(c *gin.Context, msg string) {
+	c.JSON(200, gin.H{
+		"status": "error",
+		"msg":    msg,
+		"data": gin.H{
+			"total":           0,
+			"instancesStatus": []*cloud.InstanceStaus{},
+			"currentPageNum":  -1,
+		},
+	})
+}
+
 func EmptyInstancesResponse(c *gin.Context, msg string) {
 	c.JSON(200, gin.H{
 		"status": "error",

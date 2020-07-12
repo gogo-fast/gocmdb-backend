@@ -97,6 +97,156 @@ func GetSecurityGroups(c *gin.Context) {
 
 }
 
+func LoadInstanceStatusList(c *gin.Context) {
+	platType := c.Query("platType")
+	regionId := c.Query("regionId")
+	if platType == "" {
+		EmptySecurityGroupsResponse(c, "need platType")
+		return
+	}
+	if regionId == "" {
+		EmptySecurityGroupsResponse(c, "need regionId")
+		return
+	}
+
+	instanceIds := c.PostFormArray("instanceIds")
+	if len(instanceIds) == 0 {
+		EmptyInstancesStatusResponse(c, "need instanceIds in form-data")
+		return
+	}
+	cCloud, ok := cloud.DefaultCloudMgr.GetCloud(platType)
+	if !ok {
+		utils.Logger.Warning(fmt.Sprintf("get %s cloud manager failed", platType))
+		EmptySecurityGroupsResponse(c, fmt.Sprintf("do not support cloud %s", platType))
+		return
+	}
+	statusList, err := cCloud.GetInstancesStatus(regionId, instanceIds)
+	if err != nil {
+		EmptyInstancesStatusResponse(c, fmt.Sprintf("get instances status error, err: %s", err))
+		return
+	}
+	c.JSON(200, gin.H{
+		"status": "error",
+		"msg":    fmt.Sprintf("get instances status set in region [%s] success", regionId),
+		"data": gin.H{
+			"total":           len(statusList),
+			"instancesStatus": statusList,
+			"currentPageNum":  -1,
+		},},
+	)
+}
+
+func GetAllInstanceStatusList(c *gin.Context) {
+	platType := c.Query("platType")
+	regionId := c.Query("regionId")
+	if platType == "" {
+		EmptySecurityGroupsResponse(c, "need platType")
+		return
+	}
+	if regionId == "" {
+		EmptySecurityGroupsResponse(c, "need regionId")
+		return
+	}
+
+	cCloud, ok := cloud.DefaultCloudMgr.GetCloud(platType)
+	if !ok {
+		utils.Logger.Warning(fmt.Sprintf("get %s cloud manager failed", platType))
+		EmptySecurityGroupsResponse(c, fmt.Sprintf("do not support cloud %s", platType))
+		return
+	}
+	statusList, err := cCloud.GetAllInstancesStatus(regionId)
+	if err != nil {
+		EmptyInstancesStatusResponse(c, fmt.Sprintf("get instances status error, err: %s", err))
+		return
+	}
+	c.JSON(200, gin.H{
+		"status": "error",
+		"msg":    fmt.Sprintf("get all instances status set in region [%s] success", regionId),
+		"data": gin.H{
+			"total":           len(statusList),
+			"instancesStatus": statusList,
+			"currentPageNum":  -1,
+		},},
+	)
+}
+
+func WsGetAllInstanceStatusList(c *gin.Context) {
+	var (
+		wsConn *websocket.Conn
+		err    error
+		data   []byte
+	)
+
+	platType := c.Query("platType")
+	regionId := c.Query("regionId")
+	if platType == "" {
+		EmptySecurityGroupsResponse(c, "need platType")
+		return
+	}
+	if regionId == "" {
+		EmptySecurityGroupsResponse(c, "need regionId")
+		return
+	}
+
+	cCloud, ok := cloud.DefaultCloudMgr.GetCloud(platType)
+	if !ok {
+		utils.Logger.Warning(fmt.Sprintf("get %s cloud manager failed", platType))
+		EmptySecurityGroupsResponse(c, fmt.Sprintf("do not support cloud %s", platType))
+		return
+	}
+
+	// get instance once before establish websocket connection,
+	// if error happened, do not establish websocket connection.
+	_, err = cCloud.GetAllInstancesStatus(regionId)
+	if err != nil {
+		utils.Logger.Error(err)
+		return
+	}
+
+	// Upgrade: websocket
+	wsConn, err = upGrader.Upgrade(c.Writer, c.Request, nil)
+	if err != nil {
+		utils.Logger.Error(err)
+		EmptyInstancesResponse(c, fmt.Sprintf("获取[%s]实例状态列表的websocket连接建立失败", platType))
+		return
+	}
+	conn := utils.InitConnection(wsConn)
+	utils.Logger.Info(fmt.Sprintf("getting instances status websocket of [%s] success", platType))
+
+	for {
+		statusList, err := cCloud.GetAllInstancesStatus(regionId)
+		if err != nil {
+			utils.Logger.Error(err)
+			data, err = json.Marshal(gin.H{
+				"status": "error",
+				"msg":    fmt.Sprintf("获取 [%s] [%s] 云主机状态列表失败", platType, regionId),
+				"data": gin.H{
+					"total":           0,
+					"instancesStatus": []*cloud.InstanceStaus{},
+					"currentPageNum":  -1,
+				},
+			})
+		} else {
+			data, err = json.Marshal(gin.H{
+				"status": "ok",
+				"msg":    fmt.Sprintf("获取 [%s] [%s] 云主机状态列表成功", platType, regionId),
+				"data": gin.H{
+					"total":           len(statusList),
+					"instancesStatus": statusList,
+					"currentPageNum":  -1,
+				},
+			})
+		}
+		//fmt.Println(instanceList)
+		err = conn.WriteMessage(data)
+		if err != nil {
+			conn.Close()
+			return
+		}
+		time.Sleep(time.Second * time.Duration(wsUpdateInterval))
+	}
+}
+
 func GetInstanceList(c *gin.Context) {
 	var (
 		err  error

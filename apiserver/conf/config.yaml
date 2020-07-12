@@ -5,7 +5,7 @@ server:
   token_exp: 36000 # seconds
   default_page_num: 1
   default_page_size: 10
-  websocket_update_interval: 10 # seconds
+  websocket_update_interval: 20 # seconds
 
 log:
   log_dir_name: logs
@@ -78,14 +78,14 @@ mysql:
 
 
 aliyun:
-  default_region_id: cn-beijing
-  access_key_id: eruovnwrRTRGsfstet
-  access_key_secret: HTfv7974lsvlsghlrjglSDersd66
+  default_region_id: cn-zhangjiakou
+  access_key_id: LTAI4FyL9m9NkW881cV9vP7x
+  access_key_secret: XlntgjB91lKSv5f3ktEJXMmeCoG1s2
 
 tencent:
-  default_region_id:
-  access_key_id:
-  access_key_secret:
+  default_region_id: ap-beijing
+  access_key_id: AKIDXordbJKxrVyA54eHXXGk00BnAi5HnySu
+  access_key_secret: AoFBrHTO2QYS5AqGPHtEJ80cxCBumOjz
 
 update_host_record:
   interval: 5 # seconds
