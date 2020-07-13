@@ -7,3 +7,5 @@ LICENSE
 .gitignore
 .dockerignore
 Dockerfile
+*.uuid
+*.pid

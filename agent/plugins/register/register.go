@@ -61,16 +61,16 @@ func NewRegister(uuid string) (*models.RegisterMsg, error) {
 	for _, c := range _cpuInfo {
 		_cpuCount += c.Cores
 	}
-	outBoundIp, err := utils.GetOutBoundIp()
-	if err != nil {
-		utils.Logger.Error(err)
-		outBoundIp = ""
-	}
-	clusterIp, err := utils.GetAgentIp()
-	if err != nil {
-		utils.Logger.Error(err)
-		clusterIp = ""
-	}
+	//outBoundIp, err := utils.GetOutBoundIp()
+	//if err != nil {
+	//	utils.Logger.Error(err)
+	//	outBoundIp = ""
+	//}
+	//clusterIp, err := utils.GetAgentIp()
+	//if err != nil {
+	//	utils.Logger.Error(err)
+	//	clusterIp = ""
+	//}
 	for _, InterfaceStat := range _interfaceStats {
 		for _, addr := range InterfaceStat.Addrs {
 			if strings.Index(addr.Addr, ":") >= 0 {
@@ -86,7 +86,7 @@ func NewRegister(uuid string) (*models.RegisterMsg, error) {
 	ips, err := json.Marshal(_ips)
 	if err != nil {
 		utils.Logger.Error(err)
-		return nil, err
+		//return nil, err
 	}
 	for _, pts := range _partitionStats {
 		usageStats, _ := disk.Usage(pts.Device)
@@ -100,23 +100,23 @@ func NewRegister(uuid string) (*models.RegisterMsg, error) {
 	disks, err := json.Marshal(_disks)
 	if err != nil {
 		utils.Logger.Error(err)
-		return nil, err
+		//return nil, err
 	}
 
 	register.UUID = uuid
 	register.Hostname = _hostInfo.Hostname
-	register.OutBoundIP.String = outBoundIp
-	if outBoundIp == "" {
-		register.OutBoundIP.Valid = false
-	} else {
-		register.OutBoundIP.Valid = true
-	}
-	register.ClusterIP.String = clusterIp
-	if clusterIp == "" {
-		register.ClusterIP.Valid = false
-	} else {
-		register.ClusterIP.Valid = true
-	}
+	//register.OutBoundIP.String = outBoundIp
+	//if outBoundIp == "" {
+	//	register.OutBoundIP.Valid = false
+	//} else {
+	//	register.OutBoundIP.Valid = true
+	//}
+	//register.ClusterIP.String = clusterIp
+	//if clusterIp == "" {
+	//	register.ClusterIP.Valid = false
+	//} else {
+	//	register.ClusterIP.Valid = true
+	//}
 	register.IPs = string(ips)
 	register.OS = _hostInfo.OS
 	register.CpuCount = _cpuCount
@@ -137,12 +137,41 @@ func Run() {
 	tokenStr := utils.GlobalConfig.Token
 	uuid := utils.GlobalConfig.UUID
 	interval := utils.GlobalConfig.RegisterInterval
+
+	outBoundIp := ""
+	clusterIp := ""
+
+	//outBoundIp, err := utils.GetOutBoundIp()
+	//if err != nil {
+	//	utils.Logger.Error(err)
+	//	outBoundIp = ""
+	//}
+	//clusterIp, err := utils.GetAgentIp()
+	//if err != nil {
+	//	utils.Logger.Error(err)
+	//	clusterIp = ""
+	//}
+
 	for {
 		register, err := NewRegister(uuid)
 		if err != nil {
 			utils.Logger.Error(err)
 			continue
 		}
+
+		register.OutBoundIP.String = outBoundIp
+		//if outBoundIp == "" {
+		register.OutBoundIP.Valid = false
+		//} else {
+		//	register.OutBoundIP.Valid = true
+		//}
+		register.ClusterIP.String = clusterIp
+		//if clusterIp == "" {
+		register.ClusterIP.Valid = false
+		//} else {
+		//	register.ClusterIP.Valid = true
+		//}
+
 		params := req.Param{"token": tokenStr}
 		resp, err := req.Post(url, params, req.BodyJSON(register))
 		if err != nil {
