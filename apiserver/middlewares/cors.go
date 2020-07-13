@@ -1,9 +1,9 @@
 package middlewares
 
 import (
+	"apiserver/utils"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"gogo-cmdb/apiserver/utils"
 	"time"
 )
 

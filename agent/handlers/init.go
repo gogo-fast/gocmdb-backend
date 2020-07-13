@@ -1,8 +1,8 @@
 package handlers
 
 import (
+	"agent/middlewares"
 	"github.com/gin-gonic/gin"
-	"gogo-cmdb/agent/middlewares"
 )
 
 var Route *gin.Engine

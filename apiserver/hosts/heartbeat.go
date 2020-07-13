@@ -1,7 +1,7 @@
 package hosts
 
 import (
-	"gogo-cmdb/apiserver/models"
+	"apiserver/models"
 )
 
 var HeartbeatObj *HeartBeat

@@ -1,9 +1,9 @@
 package hosts
 
 import (
+	"apiserver/models"
+	"apiserver/utils"
 	"fmt"
-	"gogo-cmdb/apiserver/models"
-	"gogo-cmdb/apiserver/utils"
 	"sync"
 	"time"
 )

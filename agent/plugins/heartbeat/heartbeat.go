@@ -1,10 +1,10 @@
 package heartbeat
 
 import (
+	"agent/models"
+	"agent/utils"
 	"fmt"
 	"github.com/imroc/req"
-	"gogo-cmdb/agent/models"
-	"gogo-cmdb/agent/utils"
 
 	"time"
 )

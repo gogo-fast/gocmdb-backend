@@ -1,9 +1,9 @@
 package middlewares
 
 import (
+	"apiserver/models"
+	"apiserver/utils"
 	"github.com/gin-gonic/gin"
-	"gogo-cmdb/apiserver/models"
-	"gogo-cmdb/apiserver/utils"
 )
 
 func GetSuperClaims(c *gin.Context) (*models.AuthCustomClaims, bool) {

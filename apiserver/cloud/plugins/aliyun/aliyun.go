@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
-	"gogo-cmdb/apiserver/cloud"
-	"gogo-cmdb/apiserver/utils"
+	"apiserver/cloud"
+	"apiserver/utils"
 	"sync"
 )
 

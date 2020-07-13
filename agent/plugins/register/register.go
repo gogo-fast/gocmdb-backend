@@ -1,6 +1,8 @@
 package register
 
 import (
+	"agent/models"
+	"agent/utils"
 	"encoding/json"
 	"fmt"
 	"github.com/imroc/req"
@@ -10,8 +12,6 @@ import (
 	"github.com/shirou/gopsutil/load"
 	"github.com/shirou/gopsutil/mem"
 	"github.com/shirou/gopsutil/net"
-	"gogo-cmdb/agent/models"
-	"gogo-cmdb/agent/utils"
 	"strings"
 	"time"
 )

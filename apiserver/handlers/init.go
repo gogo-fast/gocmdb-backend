@@ -1,10 +1,10 @@
 package handlers
 
 import (
+	"apiserver/middlewares"
+	"apiserver/utils"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"gogo-cmdb/apiserver/middlewares"
-	"gogo-cmdb/apiserver/utils"
 	"net/http"
 )
 

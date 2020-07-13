@@ -1,12 +1,12 @@
 package main
 
 import (
+	"agent/handlers"
+	"agent/plugins/heartbeat"
+	"agent/plugins/register"
+	"agent/utils"
 	"fmt"
 	"github.com/sirupsen/logrus"
-	"gogo-cmdb/agent/handlers"
-	"gogo-cmdb/agent/plugins/heartbeat"
-	"gogo-cmdb/agent/plugins/register"
-	"gogo-cmdb/agent/utils"
 	"os"
 	"os/signal"
 	"syscall"

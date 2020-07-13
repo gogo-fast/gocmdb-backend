@@ -1,10 +1,10 @@
 package models
 
 import (
+	"apiserver/utils"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
-	"gogo-cmdb/apiserver/utils"
 	"os"
 )
 

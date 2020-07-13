@@ -1,7 +1,7 @@
 package models
 
 import (
-	"gogo-cmdb/apiserver/utils"
+	"apiserver/utils"
 	"time"
 )
 

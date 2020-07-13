@@ -1,11 +1,11 @@
 package main
 
 import (
+	_ "apiserver/cloud/plugins"
+	"apiserver/handlers"
+	_ "apiserver/hosts"
+	"apiserver/utils"
 	"fmt"
-	_ "gogo-cmdb/apiserver/cloud/plugins"
-	"gogo-cmdb/apiserver/handlers"
-	_ "gogo-cmdb/apiserver/hosts"
-	"gogo-cmdb/apiserver/utils"
 	"os"
 )
 

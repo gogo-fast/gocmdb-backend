@@ -1,8 +1,8 @@
 package models
 
 import (
-	"gogo-cmdb/apiserver/forms"
-	"gogo-cmdb/apiserver/utils"
+	"apiserver/forms"
+	"apiserver/utils"
 	"time"
 )
 

@@ -1,11 +1,11 @@
 package middlewares
 
 import (
+	"agent/utils"
 	"github.com/gin-gonic/gin"
-	"gogo-cmdb/agent/utils"
 )
 
-func AuthToken(c *gin.Context)  {
+func AuthToken(c *gin.Context) {
 	token := c.PostForm("token")
 	if token != utils.GlobalConfig.Token {
 		BadResponse(c, "Invalid token")
@@ -14,4 +14,3 @@ func AuthToken(c *gin.Context)  {
 	}
 	c.Next()
 }
-

@@ -7,8 +7,8 @@ import (
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common/errors"
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common/profile"
 	cvm "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/cvm/v20170312"
-	"gogo-cmdb/apiserver/cloud"
-	"gogo-cmdb/apiserver/utils"
+	"apiserver/cloud"
+	"apiserver/utils"
 	"sync"
 )
 

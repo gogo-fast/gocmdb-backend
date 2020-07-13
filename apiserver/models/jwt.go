@@ -1,8 +1,8 @@
 package models
 
 import (
+	"apiserver/utils"
 	"github.com/dgrijalva/jwt-go"
-	"gogo-cmdb/apiserver/utils"
 	"time"
 )
 

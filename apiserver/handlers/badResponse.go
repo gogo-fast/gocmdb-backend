@@ -1,9 +1,9 @@
 package handlers
 
 import (
+	"apiserver/cloud"
+	"apiserver/models"
 	"github.com/gin-gonic/gin"
-	"gogo-cmdb/apiserver/cloud"
-	"gogo-cmdb/apiserver/models"
 )
 
 func BadResponse(c *gin.Context, msg string) {

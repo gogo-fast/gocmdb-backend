@@ -1,6 +1,6 @@
 package plugins
 
 import (
-	_ "gogo-cmdb/apiserver/cloud/plugins/aliyun"
-	_ "gogo-cmdb/apiserver/cloud/plugins/tencent"
+	_ "apiserver/cloud/plugins/aliyun"
+	_ "apiserver/cloud/plugins/tencent"
 )
