@@ -54,7 +54,7 @@ frontend code go to `->` [gocmdb-front](https://github.com/gogo-fast/gocmdb-fron
   Generate a new password with `genpass`
 
   ```shell
-  $ docker exec -it cmdb-api-server /cmdb/bin/genpass -p 123456  # 123456 is new pass
+  $ docker exec -it cmdb-api-server /cmdb/apiserver/bin/genpass -p 123456  # 123456 is new pass
   123456:75a0fc76c396f590c5e63c9cc58d260e
   ```
 

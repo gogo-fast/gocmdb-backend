@@ -11,7 +11,7 @@ WORKDIR /go/release
 COPY . .
 
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
-    go build -o ../bin/agent agent.go
+    go build -o bin/agent agent.go
 
 
 # Final image.

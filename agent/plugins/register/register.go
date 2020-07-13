@@ -63,10 +63,12 @@ func NewRegister(uuid string) (*models.RegisterMsg, error) {
 	}
 	outBoundIp, err := utils.GetOutBoundIp()
 	if err != nil {
+		utils.Logger.Error(err)
 		outBoundIp = ""
 	}
 	clusterIp, err := utils.GetAgentIp()
 	if err != nil {
+		utils.Logger.Error(err)
 		clusterIp = ""
 	}
 	for _, InterfaceStat := range _interfaceStats {

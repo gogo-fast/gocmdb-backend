@@ -3,7 +3,6 @@ package utils
 import (
 	"fmt"
 	"github.com/spf13/viper"
-	//"gopkg.in/ini.v1"
 	"os"
 	"path/filepath"
 )
