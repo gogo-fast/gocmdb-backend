@@ -15,15 +15,15 @@ type User struct {
 }
 
 type UserDetail struct {
-	ID       int              `db:"-" json:"-"`
-	UserId   int              `db:"-" json:"-"`
-	Gender   int              `db:"gender" json:"gender,string"`
-	Birthday *time.Time       `db:"birthday" json:"birthDay"`
-	Tel      string           `db:"tel" json:"tel"`
-	Email    string           `db:"email" json:"email"`
-	Addr     string           `db:"addr" json:"addr"`
-	Remark   string           `db:"remark" json:"remark"`
-	Avatar   utils.NullString `db:"avatar" json:"avatar"`
+	ID       int        `db:"-" json:"-"`
+	UserId   int        `db:"-" json:"-"`
+	Gender   int        `db:"gender" json:"gender,string"`
+	Birthday *time.Time `db:"birthday" json:"birthDay"`
+	Tel      string     `db:"tel" json:"tel"`
+	Email    string     `db:"email" json:"email"`
+	Addr     string     `db:"addr" json:"addr"`
+	Remark   string     `db:"remark" json:"remark"`
+	Avatar   NullString `db:"avatar" json:"avatar"`
 }
 
 type UserTimeStamp struct {

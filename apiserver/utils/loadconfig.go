@@ -52,5 +52,5 @@ func init() {
 	GlobalConfig.SetDefault("heartbeat.interval", 10)
 	GlobalConfig.SetDefault("server.websocket_update_interval", 5)
 
-	fmt.Println("Load Api Server Config Success")
+	fmt.Println("### Load Api Server Config Success")
 }

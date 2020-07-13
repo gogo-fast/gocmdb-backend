@@ -15,9 +15,7 @@ func InitLogger() {
 	// The API for setting attributes is a little different than the package level
 	// exported logger. See Godoc.
 
-	env := GlobalConfig.GetString("env.env")
-	logDirName := GlobalConfig.GetString("log.log_dir_name")
-	logFileName := GlobalConfig.GetString("log.log_file_name")
+	env := GlobalConfig.RunEnv
 
 	Logger.Info(fmt.Sprintf("Env: [%s]", env))
 	switch env {
@@ -27,7 +25,7 @@ func InitLogger() {
 		Logger.SetReportCaller(true)
 		//Logger.Formatter = &logrus.JSONFormatter{}
 	case "product":
-		logDir := filepath.Join(BaseDir, logDirName)
+		logDir := filepath.Join(BaseDir, GlobalConfig.LogDirName)
 		_, err := os.Stat(logDir)
 		if err != nil {
 			exist := os.IsExist(err)
@@ -40,7 +38,7 @@ func InitLogger() {
 			}
 		}
 
-		logPath := filepath.Join(logDir, logFileName)
+		logPath := filepath.Join(logDir, GlobalConfig.LogFileName)
 
 		file, err := os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 		if err == nil {

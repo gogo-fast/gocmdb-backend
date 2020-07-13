@@ -1,0 +1,9 @@
+# ignore the following files
+
+LICENSE
+*.md
+.idea/
+.git/
+.gitignore
+.dockerignore
+Dockerfile

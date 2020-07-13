@@ -9,13 +9,12 @@ import (
 	"gogo-cmdb/apiserver/hosts"
 	"gogo-cmdb/apiserver/models"
 	"gogo-cmdb/apiserver/utils"
-	"gogo-cmdb/commons"
 	"strconv"
 	"time"
 )
 
 func Heartbeat(c *gin.Context) {
-	hbMsg := commons.HeartBeatMsg{}
+	hbMsg := models.HeartBeatMsg{}
 	err := c.ShouldBindJSON(&hbMsg)
 	if err != nil {
 		utils.Logger.Error("invalid heartbeat msg")
@@ -35,9 +34,10 @@ func Heartbeat(c *gin.Context) {
 }
 
 func Register(c *gin.Context) {
-	rgMsg := commons.RegisterMsg{}
+	rgMsg := models.RegisterMsg{}
 	err := c.ShouldBindJSON(&rgMsg)
 	if err != nil {
+		fmt.Println("err:", err)
 		utils.Logger.Error("invalid register msg")
 		return
 	}

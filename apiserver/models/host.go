@@ -11,8 +11,8 @@ type Host struct {
 	Status        utils.HostStatus `db:"host_status" json:"hostStatus"`
 	UUID          string           `db:"uuid" json:"uuid"`
 	Hostname      string           `db:"hostname" json:"hostname"`
-	OutBoundIP    utils.NullString `db:"out_bound_ip" json:"outBoundIp"`
-	ClusterIP     utils.NullString `db:"cluster_ip" json:"clusterIp"`
+	OutBoundIP    NullString       `db:"out_bound_ip" json:"outBoundIp"`
+	ClusterIP     NullString       `db:"cluster_ip" json:"clusterIp"`
 	IPs           string           `db:"ips" json:"ips"`
 	OS            string           `db:"os" json:"os"`
 	Arch          string           `db:"arch" json:"arch"`
@@ -23,11 +23,11 @@ type Host struct {
 	RamUsePercent float64          `db:"ram_usage_percent" json:"ramPercent"`
 	Disks         string           `db:"disks" json:"disks"`
 	AvgLoad       string           `db:"avg_load" json:"avgLoad"` // do not use "load" in db, use avg_load instead.
-	BootTime      utils.NullInt64  `db:"boot_time" json:"bootTime"`
-	CreateTime    utils.NullInt64  `db:"create_time" json:"createTime"`
-	UpdateTime    utils.NullInt64  `db:"update_time" json:"updateTime"`
-	DeleteTime    utils.NullInt64  `db:"delete_time" json:"deleteTime"`
-	HeartbeatTime utils.NullInt64  `db:"heartbeat_time" json:"-"`
+	BootTime      NullInt64        `db:"boot_time" json:"bootTime"`
+	CreateTime    NullInt64        `db:"create_time" json:"createTime"`
+	UpdateTime    NullInt64        `db:"update_time" json:"updateTime"`
+	DeleteTime    NullInt64        `db:"delete_time" json:"deleteTime"`
+	HeartbeatTime NullInt64        `db:"heartbeat_time" json:"-"`
 }
 
 type HostManager struct{}

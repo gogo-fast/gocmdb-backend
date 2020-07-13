@@ -1,4 +1,4 @@
-package utils
+package models
 
 import (
 	"database/sql"
@@ -10,14 +10,12 @@ import (
 // 所以这里需要使用 sql.NullString 代替 string 类型。这样null序列化后的是 {String: "", Valid: false}
 // 为了只得到String类型的结果，我们需要重自定义类型NullString并重写 Scan, MarshalJSON, UnmarshalJSON 三个方法。
 
-
 type NullString sql.NullString
 type NullInt64 sql.NullInt64
 
 func (ns *NullString) Scan(value interface{}) error {
 	var s sql.NullString
 	if err := s.Scan(value); err != nil {
-		Logger.Error(err)
 		return err
 	}
 
@@ -45,7 +43,6 @@ func (ns *NullString) UnmarshalJSON(b []byte) error {
 func (ni64 *NullInt64) Scan(value interface{}) error {
 	var i sql.NullInt64
 	if err := i.Scan(value); err != nil {
-		Logger.Error(err)
 		return err
 	}
 
@@ -69,5 +66,3 @@ func (ni64 *NullInt64) UnmarshalJSON(b []byte) error {
 	ni64.Valid = err == nil
 	return err
 }
-
-

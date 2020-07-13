@@ -2,17 +2,18 @@ package middlewares
 
 import (
 	"github.com/gin-gonic/gin"
+	"gogo-cmdb/apiserver/models"
 	"gogo-cmdb/apiserver/utils"
 )
 
-func GetSuperClaims(c *gin.Context) (*utils.AuthCustomClaims, bool) {
+func GetSuperClaims(c *gin.Context) (*models.AuthCustomClaims, bool) {
 	claims, ok := c.Get("claims")
 	if !ok {
 		utils.Logger.Info("上级认证信息缺失")
 		BadResponse(c, "上级认证信息缺失")
 		return nil, false
 	}
-	cla, ok := claims.(*utils.AuthCustomClaims)
+	cla, ok := claims.(*models.AuthCustomClaims)
 	if !ok {
 		BadResponse(c, "上级认证信息类型不符")
 		return nil, false
@@ -29,7 +30,7 @@ func BaseAuth(c *gin.Context) {
 		return
 	}
 
-	claims := utils.ParseJwtAuthToken(tokeStr)
+	claims := models.ParseJwtAuthToken(tokeStr)
 
 	if claims == nil {
 		utils.Logger.Error(err)

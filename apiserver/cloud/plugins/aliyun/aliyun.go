@@ -217,6 +217,7 @@ func (m *AliMgr) GetAllInstancesStatus(regionId string) ([]*cloud.InstanceStaus,
 			InstanceStatusList = append(InstanceStatusList, s)
 		}
 	}
+	fmt.Println("InstanceStatusList:", InstanceStatusList)
 	return InstanceStatusList, nil
 }
 

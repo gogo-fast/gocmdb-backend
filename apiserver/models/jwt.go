@@ -1,24 +1,25 @@
-package utils
+package models
 
 import (
 	"github.com/dgrijalva/jwt-go"
+	"gogo-cmdb/apiserver/utils"
 	"time"
 )
 
 var secretKey = "$%^dfvthe2345gcvbjmERddOPWWKqZAP<q%^)+/f"
 
 type UserAuthInfo struct {
-	UserId     int        `json:"userId,string"`
-	UserName   string     `json:"userName"`
-	UserType   UserType   `json:"userType,string"`
-	UserStatus UserStatus `json:"userStatus,string"`
-	Gender     int        `json:"gender,string"`
-	Birthday   *time.Time `json:"birthDay"`
-	Tel        string     `json:"tel"`
-	Email      string     `json:"email"`
-	Addr       string     `json:"addr"`
-	Remark     string     `json:"remark"`
-	Avatar     NullString `json:"avatar"`
+	UserId     int              `json:"userId,string"`
+	UserName   string           `json:"userName"`
+	UserType   utils.UserType   `json:"userType,string"`
+	UserStatus utils.UserStatus `json:"userStatus,string"`
+	Gender     int              `json:"gender,string"`
+	Birthday   *time.Time       `json:"birthDay"`
+	Tel        string           `json:"tel"`
+	Email      string           `json:"email"`
+	Addr       string           `json:"addr"`
+	Remark     string           `json:"remark"`
+	Avatar     NullString       `json:"avatar"`
 }
 
 type AuthCustomClaims struct {
@@ -33,7 +34,7 @@ func ParseJwtAuthToken(tokenString string) *AuthCustomClaims {
 	})
 
 	if err != nil {
-		Logger.Error(err)
+		utils.Logger.Error(err)
 		return nil
 	}
 
@@ -48,7 +49,7 @@ func GenJwtAuthToken(payload *AuthCustomClaims) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, payload)
 	tokenStr, err := token.SignedString([]byte(secretKey))
 	if err != nil {
-		Logger.Error(err)
+		utils.Logger.Error(err)
 		return "", err
 	}
 	return tokenStr, nil

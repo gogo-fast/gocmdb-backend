@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"gogo-cmdb/apiserver/models"
 	"gogo-cmdb/apiserver/utils"
-	"gogo-cmdb/commons"
 	"sync"
 	"time"
 )
@@ -25,7 +24,7 @@ func NewHostMgr() *HostMgr {
 	}
 }
 
-func (h *HostMgr) Register(rgMsg *commons.RegisterMsg) {
+func (h *HostMgr) Register(rgMsg *models.RegisterMsg) {
 	h.mutex.Lock()
 	if _, ok := h.Hosts[rgMsg.UUID]; !ok {
 		h.Hosts[rgMsg.UUID] = &models.Host{}
@@ -65,7 +64,7 @@ func (h *HostMgr) Register(rgMsg *commons.RegisterMsg) {
 
 var hbInterval = utils.GlobalConfig.GetInt64("heartbeat.interval")
 
-func (h *HostMgr) HearBeat(hbMsg *commons.HeartBeatMsg) {
+func (h *HostMgr) HearBeat(hbMsg *models.HeartBeatMsg) {
 	h.mutex.RLock()
 	if host, ok := h.Hosts[hbMsg.UUID]; ok {
 		host.HeartbeatTime = hbMsg.Timestamp

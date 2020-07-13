@@ -10,18 +10,18 @@ import (
 	"github.com/shirou/gopsutil/load"
 	"github.com/shirou/gopsutil/mem"
 	"github.com/shirou/gopsutil/net"
+	"gogo-cmdb/agent/models"
 	"gogo-cmdb/agent/utils"
-	"gogo-cmdb/commons"
 	"strings"
 	"time"
 )
 
-func NewRegister(uuid string) (*commons.RegisterMsg, error) {
+func NewRegister(uuid string) (*models.RegisterMsg, error) {
 
-	register := commons.RegisterMsg{}
+	register := models.RegisterMsg{}
 	var _cpuCount int32 = 0
 	_ips := make([]string, 0, 10)
-	_disks := map[string]*commons.Disk{}
+	_disks := map[string]*models.Disk{}
 	_cpuInfo, err := cpu.Info()
 	if err != nil {
 		utils.Logger.Error(err)
@@ -88,7 +88,7 @@ func NewRegister(uuid string) (*commons.RegisterMsg, error) {
 	}
 	for _, pts := range _partitionStats {
 		usageStats, _ := disk.Usage(pts.Device)
-		_disk := commons.Disk{
+		_disk := models.Disk{
 			Total:      int64(usageStats.Total / 1024 / 1024 / 1024), // GB
 			Used:       int64(usageStats.Used / 1024 / 1024 / 1024),  // GB
 			UsePercent: usageStats.UsedPercent,
@@ -131,10 +131,10 @@ func NewRegister(uuid string) (*commons.RegisterMsg, error) {
 }
 
 func Run() {
-	url := fmt.Sprintf("%s/%s", utils.GlobalConfig.GetString("url"), "register")
-	tokenStr := utils.GlobalConfig.GetString("token")
-	uuid := utils.GetUuid()
-	interval := utils.GlobalConfig.GetInt64("register.interval")
+	url := fmt.Sprintf("%s/%s", utils.GlobalConfig.ApiServerUrl, "register")
+	tokenStr := utils.GlobalConfig.Token
+	uuid := utils.GlobalConfig.UUID
+	interval := utils.GlobalConfig.RegisterInterval
 	for {
 		register, err := NewRegister(uuid)
 		if err != nil {

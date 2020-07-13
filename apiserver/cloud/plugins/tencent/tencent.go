@@ -137,7 +137,7 @@ func (m *TenCentMgr) GetInstancesStatus(regionId string, instanceIds []string) (
 		total              int64 = 100
 		offset             int64 = 0
 		limit              int64 = 100 //  max page size of DescribeInstancesStatus of tencent is 100.
-		InstanceStatusList       = make([]*cloud.InstanceStaus, len(instanceIds))
+		InstanceStatusList       = make([]*cloud.InstanceStaus, 0, len(instanceIds))
 	)
 
 	client, err := cvm.NewClient(m.Credential, regionId, m.ClientProfile)
@@ -232,7 +232,13 @@ func (m *TenCentMgr) GetInstance(regionId, instanceId string) (*cloud.Instance, 
 		utils.Logger.Error(fmt.Sprintf("An API error has returned on [%s]: %s", m.CloudType, err))
 		return nil, err
 	}
-	v := response.Response.InstanceSet[0]
+	instanceSet := response.Response.InstanceSet
+	if len(instanceSet) == 0 {
+		utils.Logger.Error(fmt.Sprintf("No instance returned on [%s]: %s", m.CloudType, err))
+		// you should return a error by hand, or err is nil, nil err with nil cloud.Instance is not a correct return.
+		return nil, fmt.Errorf("instance with id [%s] not exist", instanceId)
+	}
+	v := instanceSet[0]
 	instance := &cloud.Instance{}
 
 	instance.InstanceId = *v.InstanceId

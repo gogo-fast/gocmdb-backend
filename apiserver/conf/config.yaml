@@ -2,10 +2,10 @@ server:
   host: go.cmdb.com
   port: 8000
   domain: cmdb.com
-  token_exp: 36000 # seconds
+  token_exp: 600 # seconds
   default_page_num: 1
   default_page_size: 10
-  websocket_update_interval: 20 # seconds
+  websocket_update_interval: 10 # seconds
 
 log:
   log_dir_name: logs
@@ -60,7 +60,7 @@ cors:
 
 
 jwt:
-  max_exp: 36000  # seconds
+  max_exp: 600  # seconds
 
 
 mysql:
@@ -73,19 +73,15 @@ mysql:
   max_idle: 5
 
 
-# default cloud platform: aliyun/tencent
-#default_cloud: aliyun
-
-
 aliyun:
   default_region_id: cn-zhangjiakou
-  access_key_id: LTAI4FyL9m9NkW881cV9vP7x
-  access_key_secret: XlntgjB91lKSv5f3ktEJXMmeCoG1s2
+  access_key_id: LTAI4GEBoCyhKVv2N3GUfd1i
+  access_key_secret: n23QvMe6FDct2Q6kwsWcVexBEa6AFb
 
 tencent:
   default_region_id: ap-beijing
-  access_key_id: AKIDXordbJKxrVyA54eHXXGk00BnAi5HnySu
-  access_key_secret: AoFBrHTO2QYS5AqGPHtEJ80cxCBumOjz
+  access_key_id: AKIDNULM9rCVYXGjwtt1QYR7Xh38xXqtnAPU
+  access_key_secret: QQBbnlW0e6KHyRFm4oIWgaNzWmmaaKmo
 
 update_host_record:
   interval: 5 # seconds

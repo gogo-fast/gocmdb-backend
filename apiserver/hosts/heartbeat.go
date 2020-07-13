@@ -1,18 +1,18 @@
 package hosts
 
 import (
-	"gogo-cmdb/commons"
+	"gogo-cmdb/apiserver/models"
 )
 
 var HeartbeatObj *HeartBeat
 
 type HeartBeat struct {
-	HeartBeatChan chan *commons.HeartBeatMsg
+	HeartBeatChan chan *models.HeartBeatMsg
 }
 
 func NewHeartBeat() *HeartBeat {
 	return &HeartBeat{
-		HeartBeatChan: make(chan *commons.HeartBeatMsg, 1000),
+		HeartBeatChan: make(chan *models.HeartBeatMsg, 1000),
 	}
 }
 

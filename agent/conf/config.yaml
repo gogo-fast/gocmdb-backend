@@ -1,23 +1,37 @@
-server:
+# api server host and port,
+# this config is for getting the ip communicate to api server.
+apiserver:
   host: go.cmdb.com
   port: 8000
+
+# heartbeat and register to api server url
 url: http://go.cmdb.com:8000/v1/host
+
+# token communicate with api server
 token: 111666
 
-log:
-  log_dir_name: logs
-  log_file_name: agent.log
-
-uuid_file: agent.uuid
-pid_file: agent.pid
-
-env:
-   # dev|product
-  env: dev
-#  env: product
-
-heartbeat:
-  interval: 5 # seconds
-
-register:
-  interval: 10 # seconds
+## log dir and log file name
+## default log_dir_name is logs
+## default log_file_name is agent.log
+#log:
+#  log_dir_name: logs
+#  log_file_name: agent.log
+#
+## agent uuid filename, default is agent.uuid
+## do not modify it, self generated
+#uuid_file: agent.uuid
+#
+## agent pid filename, default is agent.pid
+#pid_file: agent.pid
+#
+## run env: dev | product
+## default run env is dev
+#env: product
+#
+## heartbeat time interval, default 10 seconds
+#heartbeat:
+#  interval: 5 # seconds
+#
+## register messages interval, default 10 seconds
+#register:
+#  interval: 10 # seconds

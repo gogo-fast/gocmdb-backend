@@ -1,18 +1,18 @@
 package hosts
 
 import (
-	"gogo-cmdb/commons"
+	"gogo-cmdb/apiserver/models"
 )
 
 var RegisterObj *Register
 
 type Register struct {
-	RegisterChan chan *commons.RegisterMsg
+	RegisterChan chan *models.RegisterMsg
 }
 
 func NewRegister() *Register {
 	return &Register{
-		RegisterChan: make(chan *commons.RegisterMsg, 1000),
+		RegisterChan: make(chan *models.RegisterMsg, 1000),
 	}
 }
 

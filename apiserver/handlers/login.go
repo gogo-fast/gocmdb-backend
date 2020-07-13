@@ -45,9 +45,9 @@ func Login(c *gin.Context) {
 		ExpiresAt: time.Now().Add(time.Second * time.Duration(expireAt)).Unix(),
 	}
 
-	tokenStr, err := utils.GenJwtAuthToken(
-		&utils.AuthCustomClaims{
-			UserAuthInfo: utils.UserAuthInfo{
+	tokenStr, err := models.GenJwtAuthToken(
+		&models.AuthCustomClaims{
+			UserAuthInfo: models.UserAuthInfo{
 				UserId:     userDetails.User.ID,
 				UserName:   userDetails.Name,
 				UserType:   userDetails.UserType,

@@ -2,7 +2,6 @@ package utils
 
 import (
 	"fmt"
-	"gogo-cmdb/apiserver/utils"
 	"net"
 	"strings"
 )
@@ -20,9 +19,7 @@ func GetOutBoundIp() (string, error) {
 }
 
 func GetAgentIp() (string, error) {
-	serverHost :=  utils.GlobalConfig.GetString("server.host")
-	serverPort :=  utils.GlobalConfig.GetString("server.port")
-	conn, err := net.Dial("udp", fmt.Sprintf("%s:%s", serverHost, serverPort))
+	conn, err := net.Dial("udp", fmt.Sprintf("%s:%d", GlobalConfig.ApiServerHost, GlobalConfig.ApiServerPort))
 	if err != nil {
 		Logger.Error(err)
 		return "", nil

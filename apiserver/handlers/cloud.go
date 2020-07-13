@@ -126,7 +126,7 @@ func LoadInstanceStatusList(c *gin.Context) {
 		return
 	}
 	c.JSON(200, gin.H{
-		"status": "error",
+		"status": "ok",
 		"msg":    fmt.Sprintf("get instances status set in region [%s] success", regionId),
 		"data": gin.H{
 			"total":           len(statusList),
@@ -156,11 +156,11 @@ func GetAllInstanceStatusList(c *gin.Context) {
 	}
 	statusList, err := cCloud.GetAllInstancesStatus(regionId)
 	if err != nil {
-		EmptyInstancesStatusResponse(c, fmt.Sprintf("get instances status error, err: %s", err))
+		EmptyInstancesStatusResponse(c, fmt.Sprintf("get all instances status set error, err: %s", err))
 		return
 	}
 	c.JSON(200, gin.H{
-		"status": "error",
+		"status": "ok",
 		"msg":    fmt.Sprintf("get all instances status set in region [%s] success", regionId),
 		"data": gin.H{
 			"total":           len(statusList),

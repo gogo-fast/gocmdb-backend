@@ -3,21 +3,22 @@ package heartbeat
 import (
 	"fmt"
 	"github.com/imroc/req"
+	"gogo-cmdb/agent/models"
 	"gogo-cmdb/agent/utils"
-	"gogo-cmdb/commons"
+
 	"time"
 )
 
 func Run() {
-	url := fmt.Sprintf("%s/%s", utils.GlobalConfig.GetString("url"), "heartbeat")
-	tokenStr := utils.GlobalConfig.GetString("token")
-	interval := utils.GlobalConfig.GetInt64("heartbeat.interval")
+	url := fmt.Sprintf("%s/%s", utils.GlobalConfig.ApiServerUrl, "heartbeat")
+	tokenStr := utils.GlobalConfig.Token
+	interval := utils.GlobalConfig.HeartBeatInterval
 
-	heartbeat := commons.HeartBeatMsg{}
+	heartbeat := models.HeartBeatMsg{}
 	for {
 		t := time.Now().Unix()
 		params := req.Param{"token": tokenStr}
-		heartbeat.UUID = utils.GetUuid()
+		heartbeat.UUID = utils.GlobalConfig.UUID
 		heartbeat.Timestamp.Int64 = t
 		heartbeat.Timestamp.Valid = true
 		resp, err := req.Post(url, params, req.BodyJSON(&heartbeat))
