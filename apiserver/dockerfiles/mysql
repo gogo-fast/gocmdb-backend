@@ -8,7 +8,4 @@ RUN mv upload/gocmdb.sql docker-entrypoint-initdb.d/ && \
     mv upload/Shanghai /etc/localtime && \
     rm -fr upload
 
-ENV MYSQL_ROOT_PASSWORD 123456
-ENV MYSQL_DATABASE gocmdb
-ENV MYSQL_USER cmdb
-ENV MYSQL_PASSWORD 123456
+ENV MYSQL_ROOT_PASSWORD=123456 MYSQL_DATABASE=gocmdb MYSQL_USER=cmdb MYSQL_PASSWORD=123456

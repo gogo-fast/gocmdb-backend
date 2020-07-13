@@ -2,8 +2,7 @@
 FROM golang:latest AS builder
 
 
-ENV GO111MODULE=on
-ENV GOPROXY=https://goproxy.cn
+ENV GO111MODULE=on GOPROXY=https://goproxy.cn
 
 
 WORKDIR /go/release

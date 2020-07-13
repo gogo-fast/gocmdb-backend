@@ -25,52 +25,35 @@ func NewRegister(uuid string) (*models.RegisterMsg, error) {
 	_cpuInfo, err := cpu.Info()
 	if err != nil {
 		utils.Logger.Error(err)
-		return nil, err
 	}
 	_cpuPercent, err := cpu.Percent(time.Second, false)
 	if err != nil {
 		utils.Logger.Error(err)
-		return nil, err
 	}
 	_interfaceStats, err := net.Interfaces()
 	if err != nil {
 		utils.Logger.Error(err)
-		return nil, err
 	}
 	_hostInfo, err := host.Info()
 	if err != nil {
 		utils.Logger.Error(err)
-		return nil, err
 	}
 	_memory, err := mem.VirtualMemory()
 	if err != nil {
 		utils.Logger.Error(err)
-		return nil, err
 	}
 	_partitionStats, err := disk.Partitions(true)
 	if err != nil {
 		utils.Logger.Error(err)
-		return nil, err
 	}
 	_loadAvgStat, err := load.Avg()
 	_loads, err := json.Marshal(_loadAvgStat)
 	if err != nil {
 		utils.Logger.Error(err)
-		return nil, err
 	}
 	for _, c := range _cpuInfo {
 		_cpuCount += c.Cores
 	}
-	//outBoundIp, err := utils.GetOutBoundIp()
-	//if err != nil {
-	//	utils.Logger.Error(err)
-	//	outBoundIp = ""
-	//}
-	//clusterIp, err := utils.GetAgentIp()
-	//if err != nil {
-	//	utils.Logger.Error(err)
-	//	clusterIp = ""
-	//}
 	for _, InterfaceStat := range _interfaceStats {
 		for _, addr := range InterfaceStat.Addrs {
 			if strings.Index(addr.Addr, ":") >= 0 {
@@ -86,7 +69,6 @@ func NewRegister(uuid string) (*models.RegisterMsg, error) {
 	ips, err := json.Marshal(_ips)
 	if err != nil {
 		utils.Logger.Error(err)
-		//return nil, err
 	}
 	for _, pts := range _partitionStats {
 		usageStats, _ := disk.Usage(pts.Device)
@@ -100,7 +82,6 @@ func NewRegister(uuid string) (*models.RegisterMsg, error) {
 	disks, err := json.Marshal(_disks)
 	if err != nil {
 		utils.Logger.Error(err)
-		//return nil, err
 	}
 
 	register.UUID = uuid
@@ -138,19 +119,19 @@ func Run() {
 	uuid := utils.GlobalConfig.UUID
 	interval := utils.GlobalConfig.RegisterInterval
 
-	outBoundIp := ""
-	clusterIp := ""
+	//outBoundIp := ""
+	//clusterIp := ""
 
-	//outBoundIp, err := utils.GetOutBoundIp()
-	//if err != nil {
-	//	utils.Logger.Error(err)
-	//	outBoundIp = ""
-	//}
-	//clusterIp, err := utils.GetAgentIp()
-	//if err != nil {
-	//	utils.Logger.Error(err)
-	//	clusterIp = ""
-	//}
+	outBoundIp, err := utils.GetOutBoundIp()
+	if err != nil {
+		utils.Logger.Error(err)
+		outBoundIp = ""
+	}
+	clusterIp, err := utils.GetAgentIp()
+	if err != nil {
+		utils.Logger.Error(err)
+		clusterIp = ""
+	}
 
 	for {
 		register, err := NewRegister(uuid)
@@ -160,17 +141,17 @@ func Run() {
 		}
 
 		register.OutBoundIP.String = outBoundIp
-		//if outBoundIp == "" {
+		if outBoundIp == "" {
 		register.OutBoundIP.Valid = false
-		//} else {
-		//	register.OutBoundIP.Valid = true
-		//}
+		} else {
+			register.OutBoundIP.Valid = true
+		}
 		register.ClusterIP.String = clusterIp
-		//if clusterIp == "" {
+		if clusterIp == "" {
 		register.ClusterIP.Valid = false
-		//} else {
-		//	register.ClusterIP.Valid = true
-		//}
+		} else {
+			register.ClusterIP.Valid = true
+		}
 
 		params := req.Param{"token": tokenStr}
 		resp, err := req.Post(url, params, req.BodyJSON(register))
