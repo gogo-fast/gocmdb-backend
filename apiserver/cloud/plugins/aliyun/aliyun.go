@@ -1,12 +1,12 @@
 package aliyun
 
 import (
+	"apiserver/cloud"
+	"apiserver/utils"
 	"encoding/json"
 	"fmt"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
-	"apiserver/cloud"
-	"apiserver/utils"
 	"sync"
 )
 
@@ -168,7 +168,7 @@ func (m *AliMgr) GetInstancesStatus(regionId string, instanceIds []string) ([]*c
 		total = response.TotalCount
 		p = response.PageNumber
 		s = response.PageSize
-		p ++
+		p++
 		for _, v := range response.InstanceStatuses.InstanceStatus {
 			s := &cloud.InstanceStaus{
 				InstanceId:    v.InstanceId,
@@ -208,7 +208,7 @@ func (m *AliMgr) GetAllInstancesStatus(regionId string) ([]*cloud.InstanceStaus,
 		total = response.TotalCount
 		p = response.PageNumber
 		s = response.PageSize
-		p ++
+		p++
 		for _, v := range response.InstanceStatuses.InstanceStatus {
 			s := &cloud.InstanceStaus{
 				InstanceId:    v.InstanceId,

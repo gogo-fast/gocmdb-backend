@@ -45,7 +45,7 @@ func InitLogger() {
 
 		logPath := filepath.Join(logDir, logFileName)
 
-		file, err := os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+		file, err := os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
 		if err == nil {
 			Logger.Out = file
 			Logger.SetLevel(logrus.InfoLevel)

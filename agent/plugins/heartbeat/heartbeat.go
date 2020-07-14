@@ -23,7 +23,7 @@ func Run() {
 		heartbeat.Timestamp.Valid = true
 		resp, err := req.Post(url, params, req.BodyJSON(&heartbeat))
 		if err != nil {
-			utils.Logger.Error("send heartbeat failed")
+			utils.Logger.Errorf("send heartbeat failed, err: %s", err)
 		} else {
 			result := map[string]interface{}{}
 			resp.ToJSON(&result)

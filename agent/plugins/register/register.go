@@ -18,38 +18,49 @@ import (
 
 func NewRegister(uuid string) (*models.RegisterMsg, error) {
 
-	register := models.RegisterMsg{}
+	register := &models.RegisterMsg{}
 	var _cpuCount int32 = 0
 	_ips := make([]string, 0, 10)
 	_disks := map[string]*models.Disk{}
 	_cpuInfo, err := cpu.Info()
 	if err != nil {
 		utils.Logger.Error(err)
+		return nil, err
 	}
 	_cpuPercent, err := cpu.Percent(time.Second, false)
 	if err != nil {
 		utils.Logger.Error(err)
+		return nil, err
 	}
 	_interfaceStats, err := net.Interfaces()
 	if err != nil {
 		utils.Logger.Error(err)
+		return nil, err
 	}
 	_hostInfo, err := host.Info()
 	if err != nil {
 		utils.Logger.Error(err)
+		return nil, err
 	}
 	_memory, err := mem.VirtualMemory()
 	if err != nil {
 		utils.Logger.Error(err)
+		return nil, err
 	}
 	_partitionStats, err := disk.Partitions(true)
 	if err != nil {
 		utils.Logger.Error(err)
+		return nil, err
 	}
 	_loadAvgStat, err := load.Avg()
+	if err != nil {
+		utils.Logger.Error(err)
+		return nil, err
+	}
 	_loads, err := json.Marshal(_loadAvgStat)
 	if err != nil {
 		utils.Logger.Error(err)
+		return nil, err
 	}
 	for _, c := range _cpuInfo {
 		_cpuCount += c.Cores
@@ -69,9 +80,15 @@ func NewRegister(uuid string) (*models.RegisterMsg, error) {
 	ips, err := json.Marshal(_ips)
 	if err != nil {
 		utils.Logger.Error(err)
+		return nil, err
 	}
 	for _, pts := range _partitionStats {
-		usageStats, _ := disk.Usage(pts.Device)
+		// windows user pts.Device, linux use pts.Mountpoint
+		usageStats, err := disk.Usage(pts.Mountpoint)
+		if err != nil {
+			utils.Logger.Error(err)
+			return nil, err
+		}
 		_disk := models.Disk{
 			Total:      int64(usageStats.Total / 1024 / 1024 / 1024), // GB
 			Used:       int64(usageStats.Used / 1024 / 1024 / 1024),  // GB
@@ -82,22 +99,11 @@ func NewRegister(uuid string) (*models.RegisterMsg, error) {
 	disks, err := json.Marshal(_disks)
 	if err != nil {
 		utils.Logger.Error(err)
+		return nil, err
 	}
 
 	register.UUID = uuid
 	register.Hostname = _hostInfo.Hostname
-	//register.OutBoundIP.String = outBoundIp
-	//if outBoundIp == "" {
-	//	register.OutBoundIP.Valid = false
-	//} else {
-	//	register.OutBoundIP.Valid = true
-	//}
-	//register.ClusterIP.String = clusterIp
-	//if clusterIp == "" {
-	//	register.ClusterIP.Valid = false
-	//} else {
-	//	register.ClusterIP.Valid = true
-	//}
 	register.IPs = string(ips)
 	register.OS = _hostInfo.OS
 	register.CpuCount = _cpuCount
@@ -110,7 +116,7 @@ func NewRegister(uuid string) (*models.RegisterMsg, error) {
 	register.RamUsePercent = _memory.UsedPercent
 	register.Disks = string(disks)
 	register.AvgLoad = string(_loads)
-	return &register, nil
+	return register, nil
 }
 
 func Run() {
@@ -119,50 +125,38 @@ func Run() {
 	uuid := utils.GlobalConfig.UUID
 	interval := utils.GlobalConfig.RegisterInterval
 
-	//outBoundIp := ""
-	//clusterIp := ""
-
-	outBoundIp, err := utils.GetOutBoundIp()
-	if err != nil {
-		utils.Logger.Error(err)
-		outBoundIp = ""
-	}
-	clusterIp, err := utils.GetAgentIp()
-	if err != nil {
-		utils.Logger.Error(err)
-		clusterIp = ""
-	}
+	outBoundIp := utils.GetOutBoundIp()
+	clusterIp := utils.GetAgentIp()
 
 	for {
-		register, err := NewRegister(uuid)
+		register, err:= NewRegister(uuid)
 		if err != nil {
-			utils.Logger.Error(err)
+			utils.Logger.Error(fmt.Sprintf("get register error, %s",err))
+			time.Sleep(time.Second * time.Duration(interval))
 			continue
 		}
-
 		register.OutBoundIP.String = outBoundIp
 		if outBoundIp == "" {
-		register.OutBoundIP.Valid = false
+			register.OutBoundIP.Valid = false
 		} else {
 			register.OutBoundIP.Valid = true
 		}
 		register.ClusterIP.String = clusterIp
 		if clusterIp == "" {
-		register.ClusterIP.Valid = false
+			register.ClusterIP.Valid = false
 		} else {
 			register.ClusterIP.Valid = true
 		}
 
 		params := req.Param{"token": tokenStr}
-		resp, err := req.Post(url, params, req.BodyJSON(register))
+		resp, err := req.Post(url, params, req.BodyJSON(&register))
 		if err != nil {
-			utils.Logger.Error("register agent failed")
+			utils.Logger.Error(fmt.Sprintf("register agent failed, %s", err))
 		} else {
 			result := map[string]interface{}{}
 			resp.ToJSON(&result)
 			utils.Logger.Info(result["msg"])
 		}
-		//fmt.Printf("%#v\n", register)
 		time.Sleep(time.Second * time.Duration(interval))
 	}
 

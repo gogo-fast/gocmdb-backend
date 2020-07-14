@@ -141,7 +141,7 @@ func WsGetHost(c *gin.Context) {
 	// Upgrade: websocket
 	wsConn, err = upGrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
-		fmt.Println(err)
+		utils.Logger.Error(err)
 		EmptyHostResponse(c, fmt.Sprintf("获取主机[%s]的websocket连接建立失败", uuid))
 		return
 	}
@@ -190,7 +190,6 @@ func WsGetHostList(c *gin.Context) {
 		return
 	}
 	conn := utils.InitConnection(wsConn)
-	fmt.Println("host list ws conn:", *conn)
 
 	defaultPageNum := utils.GlobalConfig.GetInt("server.default_page_num")
 	defaultPageSize := utils.GlobalConfig.GetInt("server.default_page_size")
@@ -269,11 +268,9 @@ func DeleteHost(c *gin.Context) {
 
 func StopHost(c *gin.Context) {
 	uuid := c.Query("uuid")
-	userId := c.Query("userId")
 	clusterIp := c.Query("clusterIp")
 	tokenStr := utils.GlobalConfig.GetString("agent.token")
 	if clusterIp != "" {
-		fmt.Println(clusterIp, userId, tokenStr)
 		params := req.Param{
 			"token": tokenStr,
 		}
