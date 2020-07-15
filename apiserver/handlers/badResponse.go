@@ -110,7 +110,7 @@ func EmptySecurityGroupsResponse(c *gin.Context, msg string) {
 	})
 }
 
-func EmptySecurityZonesResponse(c *gin.Context, msg string) {
+func EmptyZonesResponse(c *gin.Context, msg string) {
 	c.JSON(200, gin.H{
 		"status": "error",
 		"msg":    msg,

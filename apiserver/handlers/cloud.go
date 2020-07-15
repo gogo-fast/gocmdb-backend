@@ -39,23 +39,23 @@ func GetZones(c *gin.Context) {
 	platType := c.Query("platType")
 	regionId := c.Query("regionId")
 	if platType == "" {
-		EmptySecurityZonesResponse(c, "need platType")
+		EmptyZonesResponse(c, "need platType")
 		return
 	}
 	if regionId == "" {
-		EmptySecurityZonesResponse(c, "need regionId")
+		EmptyZonesResponse(c, "need regionId")
 		return
 	}
 
 	cCloud, ok := cloud.DefaultCloudMgr.GetCloud(platType)
 	if !ok {
 		utils.Logger.Warning(fmt.Sprintf("get %s cloud manager failed", platType))
-		EmptySecurityZonesResponse(c, fmt.Sprintf("do not support cloud %s", platType))
+		EmptyZonesResponse(c, fmt.Sprintf("do not support cloud %s", platType))
 		return
 	}
 	zones, err := cCloud.GetZones(regionId)
 	if err != nil {
-		EmptySecurityZonesResponse(c, fmt.Sprintf("get zones from %s failed", cCloud.PlatType()))
+		EmptyZonesResponse(c, fmt.Sprintf("get zones from %s failed", cCloud.PlatType()))
 		return
 	}
 	c.JSON(200, gin.H{
@@ -101,11 +101,11 @@ func LoadInstanceStatusList(c *gin.Context) {
 	platType := c.Query("platType")
 	regionId := c.Query("regionId")
 	if platType == "" {
-		EmptySecurityGroupsResponse(c, "need platType")
+		EmptyInstancesStatusResponse(c, "need platType")
 		return
 	}
 	if regionId == "" {
-		EmptySecurityGroupsResponse(c, "need regionId")
+		EmptyInstancesStatusResponse(c, "need regionId")
 		return
 	}
 
@@ -117,12 +117,13 @@ func LoadInstanceStatusList(c *gin.Context) {
 	cCloud, ok := cloud.DefaultCloudMgr.GetCloud(platType)
 	if !ok {
 		utils.Logger.Warning(fmt.Sprintf("get %s cloud manager failed", platType))
-		EmptySecurityGroupsResponse(c, fmt.Sprintf("do not support cloud %s", platType))
+		EmptyInstancesStatusResponse(c, fmt.Sprintf("do not support cloud %s", platType))
 		return
 	}
 	statusList, err := cCloud.GetInstancesStatus(regionId, instanceIds)
 	if err != nil {
-		EmptyInstancesStatusResponse(c, fmt.Sprintf("get instances status error, err: %s", err))
+		utils.Logger.Warning(fmt.Sprintf("get instances status on [%s] failed", platType))
+		EmptyInstancesStatusResponse(c, fmt.Sprintf("get instances status on [%s] failed", platType))
 		return
 	}
 	c.JSON(200, gin.H{
@@ -140,23 +141,24 @@ func GetAllInstanceStatusList(c *gin.Context) {
 	platType := c.Query("platType")
 	regionId := c.Query("regionId")
 	if platType == "" {
-		EmptySecurityGroupsResponse(c, "need platType")
+		EmptyInstancesStatusResponse(c, "need platType")
 		return
 	}
 	if regionId == "" {
-		EmptySecurityGroupsResponse(c, "need regionId")
+		EmptyInstancesStatusResponse(c, "need regionId")
 		return
 	}
 
 	cCloud, ok := cloud.DefaultCloudMgr.GetCloud(platType)
 	if !ok {
 		utils.Logger.Warning(fmt.Sprintf("get %s cloud manager failed", platType))
-		EmptySecurityGroupsResponse(c, fmt.Sprintf("do not support cloud %s", platType))
+		EmptyInstancesStatusResponse(c, fmt.Sprintf("do not support cloud %s", platType))
 		return
 	}
 	statusList, err := cCloud.GetAllInstancesStatus(regionId)
 	if err != nil {
-		EmptyInstancesStatusResponse(c, fmt.Sprintf("get all instances status set error, err: %s", err))
+		utils.Logger.Warning(fmt.Sprintf("get all instances status on [%s] failed, err: %s", platType, err))
+		EmptyInstancesStatusResponse(c, fmt.Sprintf("get all instances status on [%s] failed", platType))
 		return
 	}
 	c.JSON(200, gin.H{
@@ -180,18 +182,18 @@ func WsGetAllInstanceStatusList(c *gin.Context) {
 	platType := c.Query("platType")
 	regionId := c.Query("regionId")
 	if platType == "" {
-		EmptySecurityGroupsResponse(c, "need platType")
+		EmptyInstancesStatusResponse(c, "need platType")
 		return
 	}
 	if regionId == "" {
-		EmptySecurityGroupsResponse(c, "need regionId")
+		EmptyInstancesStatusResponse(c, "need regionId")
 		return
 	}
 
 	cCloud, ok := cloud.DefaultCloudMgr.GetCloud(platType)
 	if !ok {
 		utils.Logger.Warning(fmt.Sprintf("get %s cloud manager failed", platType))
-		EmptySecurityGroupsResponse(c, fmt.Sprintf("do not support cloud %s", platType))
+		EmptyInstancesStatusResponse(c, fmt.Sprintf("do not support cloud %s", platType))
 		return
 	}
 
@@ -207,7 +209,7 @@ func WsGetAllInstanceStatusList(c *gin.Context) {
 	wsConn, err = upGrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		utils.Logger.Error(err)
-		EmptyInstancesResponse(c, fmt.Sprintf("获取[%s]实例状态列表的websocket连接建立失败", platType))
+		EmptyInstancesStatusResponse(c, fmt.Sprintf("获取[%s]实例状态列表的websocket连接建立失败", platType))
 		return
 	}
 	conn := utils.InitConnection(wsConn)
