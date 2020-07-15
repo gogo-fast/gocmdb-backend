@@ -93,7 +93,7 @@ frontend code go to `->` [gocmdb-front](https://github.com/gogo-fast/gocmdb-fron
   start `cmdb-agent`, change `192.168.10.100` to `your_agent_host_ip`
 
   ```shell
-  docker run --name cmdb-agent -d --link cmdb-api-server:go.cmdb.com -p 192.168.10.100:8010:8010 cmdb-agent:v0.1
+  docker run --name cmdb-agent -d --link cmdb-api-server:api.go.cmdb.com -p 192.168.10.100:8010:8010 cmdb-agent:v0.1
   ```
   
 
