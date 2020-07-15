@@ -1,6 +1,10 @@
 server:
-  host: go.cmdb.com
+  # the host is api server hostname
+  # is used to generate file upload url
+  host: api.cmdb.com
+  # api server port
   port: 8000
+  # domain is used to set token
   domain: cmdb.com
   token_exp: 600 # seconds
   default_page_num: 1
@@ -18,6 +22,8 @@ env:
 
 
 filesystem:
+  # the host is file system server hostname
+  # and used to generate avatar download url
   host: img.cmdb.com
   # 8 << 20 <==> 8 MiB
   max_multipart_memory: 20
@@ -25,6 +31,7 @@ filesystem:
   user_static_url: /user
 
 
+# front end domain
 cors:
   allow_origins:
     - "http://go.cmdb.com:8888"
@@ -64,6 +71,7 @@ jwt:
 
 
 mysql:
+  # database hostname
   host: mariadb-server
   port: 3306
   db_name: gocmdb
