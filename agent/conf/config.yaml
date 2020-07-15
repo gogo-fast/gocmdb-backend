@@ -5,7 +5,7 @@ apiserver:
   port: 8000
 
 # heartbeat and register to api server url
-url: http://aip.go.cmdb.com:8000/v1/host
+url: http://api.go.cmdb.com:8000/v1/host
 #url: http://192.168.10.100:8000/v1/host
 
 # token communicate with api server
