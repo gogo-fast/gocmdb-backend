@@ -298,7 +298,7 @@ func UpdatePasswordById(c *gin.Context) {
 
 }
 
-var host = utils.GlobalConfig.GetString("server.host")
+var host = utils.GlobalConfig.GetString("filesystem.host")
 var port = utils.GlobalConfig.GetString("server.port")
 var userStaticUrl = utils.GlobalConfig.GetString("filesystem.user_static_url")
 var userStaticPath = utils.GlobalConfig.GetString("filesystem.user_static_dir_name")

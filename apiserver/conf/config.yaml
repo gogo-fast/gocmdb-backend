@@ -1,6 +1,6 @@
 server:
   # the host is api server hostname
-  # is used to generate file upload url
+  # is used to upload file
   host: api.cmdb.com
   # api server port
   port: 8000
