@@ -46,7 +46,7 @@ frontend code go to `->` [gocmdb-front](https://github.com/gogo-fast/gocmdb-fron
   start `cmdb-api-server`, change `192.168.10.100` to `your_apiserver_host_ip`
 
   ```shell
-  docker run --name cmdb-api-server -d -p 192.168.10.100:8000:8000 cmdb-api-server:v0.1
+  docker run --name cmdb-api-server -d --link cmdb-db:mariadb-server -p 192.168.10.100:8000:8000 cmdb-api-server:v0.1
   ```
 
 - Forgot password

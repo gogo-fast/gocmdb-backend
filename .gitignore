@@ -1,5 +1,7 @@
 # Binaries for programs and plugins
-*/bin/
+./agent/bin/*
+./agent/*.pid
+./apiserver/bin/*
 *.exe
 *.exe~
 *.dll

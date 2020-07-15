@@ -27,8 +27,8 @@ filesystem:
 
 cors:
   allow_origins:
-    - "http://go.cmdb.com"
-    - "http://img.cmdb.com"
+    - "http://go.cmdb.com:8888"
+    - "http://img.cmdb.com:8888"
 
   ## X-Requested-With is for allowing OPTIONS method of upload file.
   allow_headers:
@@ -64,7 +64,7 @@ jwt:
 
 
 mysql:
-  host: 192.168.10.100
+  host: mariadb-server
   port: 3306
   db_name: gocmdb
   db_user: cmdb
