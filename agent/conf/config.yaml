@@ -4,9 +4,13 @@ apiserver:
   host: api.cmdb.com
   port: 8000
 
+agent_http_server:
+  # http server port for api server communicate to agent for sending actions
+  # default port 8800
+  port: 8800
+
 # heartbeat and register to api server url
 url: http://api.cmdb.com:8000/v1/host
-#url: http://192.168.10.100:8000/v1/host
 
 # token communicate with api server
 token: 111666

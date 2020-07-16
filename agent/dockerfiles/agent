@@ -21,5 +21,5 @@ COPY --from=builder  /go/release/bin/  /cmdb/agent/bin/
 COPY conf/config.yaml  /cmdb/agent/conf/config.yaml
 
 
-EXPOSE 8010
+EXPOSE 8800
 CMD ["/cmdb/agent/bin/agent"]

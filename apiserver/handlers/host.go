@@ -270,11 +270,12 @@ func StopHost(c *gin.Context) {
 	uuid := c.Query("uuid")
 	clusterIp := c.Query("clusterIp")
 	tokenStr := utils.GlobalConfig.GetString("agent.token")
+	agentPort := utils.GlobalConfig.GetInt("agent.port")
 	if clusterIp != "" {
 		params := req.Param{
 			"token": tokenStr,
 		}
-		_, err := req.Post(fmt.Sprintf("http://%s:8010/host/stop", clusterIp), params)
+		_, err := req.Post(fmt.Sprintf("http://%s:%d/host/stop", clusterIp, agentPort), params)
 		if err != nil {
 			utils.Logger.Error("connect to agent failed")
 			c.JSON(200, gin.H{

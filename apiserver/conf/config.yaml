@@ -11,6 +11,14 @@ server:
   default_page_size: 10
   websocket_update_interval: 10 # seconds
 
+
+agent:
+  # token to auth agent
+  token: 111666
+  # agent http server port to send actions message
+  port: 8800
+
+
 log:
   log_dir_name: logs
   log_file_name: cmdb.log
@@ -83,18 +91,14 @@ mysql:
 
 aliyun:
   default_region_id: cn-zhangjiakou
-  access_key_id: LTAI4GEBoCyhKVv2N3GUfd1i
-  access_key_secret: n23QvMe6FDct2Q6kwsWcVexBEa6AFb
+  access_key_id: LTAI4GEBoCN3GUfd1i
+  access_key_secret: n23QvMe6FkwsWcVexBEa6AFb
 
 tencent:
   default_region_id: ap-beijing
-  access_key_id: AKIDNULM9rCVYXGjwtt1QYR7Xh38xXqtnAPU
-  access_key_secret: QQBbnlW0e6KHyRFm4oIWgaNzWmmaaKmo
+  access_key_id: AKIDgnjRUcfMtDt24pgFbiY8TfcdegS
+  access_key_secret: e3CChK2Xpt9qPR0FEze3C1h
 
 update_host_record:
   interval: 5 # seconds
-
-
-agent:
-  token: 111666
 

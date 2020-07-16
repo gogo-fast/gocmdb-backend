@@ -14,36 +14,38 @@ var (
 )
 
 type Config struct {
-	ApiServerPort     int
-	HeartBeatInterval int64
-	RegisterInterval  int64
-	ApiServerUrl      string
-	Token             string
-	ApiServerHost     string
-	LogDirName        string
-	LogFileName       string
-	UuidFileName      string
-	PidFileName       string
-	PidFilePath       string
-	RunEnv            string
-	UUID              string
-	PID               int
+	ApiServerPort       int
+	AgentHttpServerPort int
+	HeartBeatInterval   int64
+	RegisterInterval    int64
+	ApiServerUrl        string
+	Token               string
+	ApiServerHost       string
+	LogDirName          string
+	LogFileName         string
+	UuidFileName        string
+	PidFileName         string
+	PidFilePath         string
+	RunEnv              string
+	UUID                string
+	PID                 int
 }
 
 func NewConfig() *Config {
 	// return a new config with default value above
 	return &Config{
-		ApiServerHost:     v.GetString("apiserver.host"),
-		ApiServerPort:     v.GetInt("apiserver.port"),
-		ApiServerUrl:      v.GetString("url"),
-		Token:             v.GetString("token"),
-		LogDirName:        v.GetString("log.log_dir_name"),
-		LogFileName:       v.GetString("log.log_file_name"),
-		UuidFileName:      v.GetString("uuid_file"),
-		PidFileName:       v.GetString("pid_file"),
-		RunEnv:            v.GetString("env"),
-		HeartBeatInterval: v.GetInt64("heartbeat.interval"),
-		RegisterInterval:  v.GetInt64("register.interval"),
+		ApiServerHost:       v.GetString("apiserver.host"),
+		ApiServerPort:       v.GetInt("apiserver.port"),
+		AgentHttpServerPort: v.GetInt("agent_http_server.port"),
+		ApiServerUrl:        v.GetString("url"),
+		Token:               v.GetString("token"),
+		LogDirName:          v.GetString("log.log_dir_name"),
+		LogFileName:         v.GetString("log.log_file_name"),
+		UuidFileName:        v.GetString("uuid_file"),
+		PidFileName:         v.GetString("pid_file"),
+		RunEnv:              v.GetString("env"),
+		HeartBeatInterval:   v.GetInt64("heartbeat.interval"),
+		RegisterInterval:    v.GetInt64("register.interval"),
 	}
 }
 
@@ -83,6 +85,7 @@ func init() {
 	v.SetDefault("env", "dev")
 	v.SetDefault("heartbeat.interval", 10)
 	v.SetDefault("register.interval", 10)
+	v.SetDefault("agent_http_server.port", 8800)
 
 	GlobalConfig = NewConfig()
 	GlobalConfig.UUID = GetUuid()

@@ -1,9 +1,7 @@
 # builder image.
 FROM golang:latest AS builder
 
-
 ENV GO111MODULE=on GOPROXY=https://goproxy.cn
-
 
 WORKDIR /go/release
 
@@ -20,7 +18,8 @@ FROM scratch
 ENV PATH="/cmdb/apiserver/bin:$PATH"
 COPY --from=builder  /go/release/bin/  /cmdb/apiserver/bin/
 COPY conf/config.yaml  /cmdb/apiserver/conf/config.yaml
+COPY cacert.pem /etc/ssl/certs/
 
+EXPOSE 8000
 
-EXPOSE 8008
 CMD ["/cmdb/apiserver/bin/apiserver"]

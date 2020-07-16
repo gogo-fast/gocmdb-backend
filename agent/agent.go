@@ -37,7 +37,8 @@ func main() {
 		os.Exit(1)
 	}(quitChan)
 
-	err := handlers.Route.Run(":8010")
+	utils.Logger.Info(fmt.Sprintf("agent http server running at [%d]", utils.GlobalConfig.AgentHttpServerPort))
+	err := handlers.Route.Run(fmt.Sprintf(":%d", utils.GlobalConfig.AgentHttpServerPort))
 	if err != nil {
 		fmt.Println("start agent httpServer failed:", err)
 		os.Exit(-1)
