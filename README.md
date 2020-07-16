@@ -97,3 +97,44 @@ frontend code go to `->` [gocmdb-front](https://github.com/gogo-fast/gocmdb-fron
   ```
   
 
+### FQA
+
+- x509: certificate signed by unknown authority
+
+    ```shell script
+    curl -o /etc/ssl/certs/cacert.pem https://curl.haxx.se/ca/cacert.pem
+    ```
+
+
+- 签名过期，请重新生成请求 or IllegalTimestamp
+    
+    do time sync on host
+
+    ```shell script
+    yum install ntp -y
+    
+    cat <<EOF >/etc/systemd/system/synctime.service
+    [Unit]
+    Description=Sync Time From Internet
+    
+    [Service]
+    Type=oneshot
+    ExecStart=/usr/sbin/ntpdate ntp1.aliyun.com
+    EOF
+    
+    cat <<EOF > /etc/systemd/system/synctime-job.timer
+    [Unit]
+    Description=Timer for synctime.service
+    
+    [Timer]
+    Unit=synctime.service   
+    OnCalendar=*:*:00
+    [Install]
+    WantedBy=timers.target
+    EOF
+    
+    systemctl daemon-reload
+    systemctl start synctime-job.timer
+    systemctl status synctime-job.timer
+    systemctl enable synctime-job.timer
+    ```
