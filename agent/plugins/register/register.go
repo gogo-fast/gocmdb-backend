@@ -52,6 +52,7 @@ func NewRegister(uuid string) (*models.RegisterMsg, error) {
 		utils.Logger.Error(err)
 		return nil, err
 	}
+	// not implemented yet on windows
 	_loadAvgStat, err := load.Avg()
 	if err != nil {
 		utils.Logger.Error(err)

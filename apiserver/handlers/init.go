@@ -21,12 +21,16 @@ func init() {
 
 	img := Route.Group("/img", middlewares.BaseAuth)
 	{
-		img.StaticFS(userStaticUrl, http.Dir(fmt.Sprintf("%s/upload/%s", utils.BaseDir, userStaticPath)))
+		// fmt.Sprintf("%s/upload/img/%s/", utils.BaseDir, userStaticPath) is real img path
+		// img/<userStaticUrl> <==> img/user is url pathname
+		img.StaticFS(userStaticUrl, http.Dir(fmt.Sprintf("%s/upload/img/%s/", utils.BaseDir, userStaticPath)))
 	}
 
-	host := utils.GlobalConfig.GetString("filesystem.host")
+	host := utils.GlobalConfig.GetString("server.host")
 	port := utils.GlobalConfig.GetString("server.port")
-	utils.Logger.Info(fmt.Sprintf("File System Served On: http://%s:%s/img%s", host, port, userStaticUrl))
+
+	// http://go.cmdb.com:8000/img/user
+	utils.Logger.Info(fmt.Sprintf("File System Served On: http://%s:%s/img/%s", host, port, userStaticUrl))
 
 	v1 := Route.Group("/v1", middlewares.AllowCors())
 	{

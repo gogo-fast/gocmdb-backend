@@ -1,7 +1,7 @@
 # api server host and port,
 # this config is for getting the ip communicate to api server.
 apiserver:
-  host: api.cmdb.com
+  host: go.cmdb.com
   port: 8000
 
 agent_http_server:
@@ -10,7 +10,7 @@ agent_http_server:
   port: 8800
 
 # heartbeat and register to api server url
-url: http://api.cmdb.com:8000/v1/host
+url: http://go.cmdb.com:8000/v1/host
 
 # token communicate with api server
 token: 111666

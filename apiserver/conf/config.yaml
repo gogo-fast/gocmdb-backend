@@ -1,7 +1,7 @@
 server:
   # the host is api server hostname
   # is used to upload file
-  host: api.cmdb.com
+  host: go.cmdb.com
   # api server port
   port: 8000
   # domain is used to set token
@@ -30,9 +30,6 @@ env:
 
 
 filesystem:
-  # the host is file system server hostname
-  # and used to generate avatar download url
-  host: img.cmdb.com
   # 8 << 20 <==> 8 MiB
   max_multipart_memory: 20
   user_static_dir_name: users
@@ -43,7 +40,6 @@ filesystem:
 cors:
   allow_origins:
     - "http://go.cmdb.com:8888"
-    - "http://img.cmdb.com:8888"
 
   ## X-Requested-With is for allowing OPTIONS method of upload file.
   allow_headers:

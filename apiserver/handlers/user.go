@@ -298,7 +298,7 @@ func UpdatePasswordById(c *gin.Context) {
 
 }
 
-var host = utils.GlobalConfig.GetString("filesystem.host")
+var host = utils.GlobalConfig.GetString("server.host")
 var port = utils.GlobalConfig.GetString("server.port")
 var userStaticUrl = utils.GlobalConfig.GetString("filesystem.user_static_url")
 var userStaticPath = utils.GlobalConfig.GetString("filesystem.user_static_dir_name")
@@ -336,7 +336,7 @@ func UploadAvatar(c *gin.Context) {
 		return
 	}
 
-	upAbsDir := filepath.Join(utils.BaseDir, "upload", userStaticPath, fmt.Sprintf("%d", userId))
+	upAbsDir := filepath.Join(utils.BaseDir, "upload/img", userStaticPath, fmt.Sprintf("%d", userId))
 
 	// map[Content-Disposition:[form-data; name="file"; filename="head-img-01.jpg"] Content-Type:[image/jpeg]]
 	// fmt.Println(file.Header)
@@ -348,8 +348,9 @@ func UploadAvatar(c *gin.Context) {
 		return
 	}
 
-	imgUrl := fmt.Sprintf("http://%s:%s/img%s", host, port, fmt.Sprintf("%s/%s/%s", userStaticUrl, fmt.Sprintf("%d", userId), newFileName))
-
+	imgUrl := fmt.Sprintf("http://%s:%s/img/%s/%d/%s", host, port, userStaticUrl, userId, newFileName)
+	// http://go.cmdb.com:8000/img/user/804/4d53c06e-d245-424d-bc48-c24c9f2280bd.png
+	// http://go.cmdb.com:8000/img/user
 	err = models.DefaultUserManager.UpdateAvatarById(imgUrl, userId)
 	if err != nil {
 		utils.Logger.Error(err)
