@@ -17,7 +17,7 @@ FROM scratch
 ENV PATH="/cmdb/agent/bin:$PATH"
 COPY --from=builder  /go/release/bin/  /cmdb/agent/bin/
 COPY conf/config.yaml  /cmdb/agent/conf/config.yaml
-COPY ../Shanghai /etc/localtime
+COPY Shanghai /etc/localtime
 
 EXPOSE 8800
 CMD ["/cmdb/agent/bin/agent"]
