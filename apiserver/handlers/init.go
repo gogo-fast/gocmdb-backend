@@ -30,7 +30,7 @@ func init() {
 	port := utils.GlobalConfig.GetString("server.port")
 
 	// http://go.cmdb.com:8000/img/user
-	utils.Logger.Info(fmt.Sprintf("File System Served On: http://%s:%s/img/%s", host, port, userStaticUrl))
+	utils.Logger.Info(fmt.Sprintf("Img File System Served On: http://%s:%s/img/%s", host, port, userStaticUrl))
 
 	v1 := Route.Group("/v1", middlewares.AllowCors())
 	{

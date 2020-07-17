@@ -348,9 +348,9 @@ func UploadAvatar(c *gin.Context) {
 		return
 	}
 
-	imgUrl := fmt.Sprintf("http://%s:%s/img/%s/%d/%s", host, port, userStaticUrl, userId, newFileName)
-	// http://go.cmdb.com:8000/img/user/804/4d53c06e-d245-424d-bc48-c24c9f2280bd.png
-	// http://go.cmdb.com:8000/img/user
+	// generate related url path instead of absolutely url path.
+	imgUrl := fmt.Sprintf("/img%s/%d/%s", userStaticUrl, userId, newFileName)
+	// /img/user/804/4d53c06e-d245-424d-bc48-c24c9f2280bd.png
 	err = models.DefaultUserManager.UpdateAvatarById(imgUrl, userId)
 	if err != nil {
 		utils.Logger.Error(err)
