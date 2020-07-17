@@ -19,6 +19,7 @@ ENV PATH="/cmdb/apiserver/bin:$PATH"
 COPY --from=builder  /go/release/bin/  /cmdb/apiserver/bin/
 COPY conf/config.yaml  /cmdb/apiserver/conf/config.yaml
 COPY cacert.pem /etc/ssl/certs/
+COPY ../Shanghai /etc/localtime
 
 EXPOSE 8000
 
