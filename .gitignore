@@ -1,7 +1,6 @@
 # Binaries for programs and plugins
-./agent/bin/*
-./agent/*.pid
-./apiserver/bin/*
+*.pid
+*.uuid
 *.exe
 *.exe~
 *.dll
@@ -20,7 +19,12 @@
 
 
 # log
-apiserver/logs/*
+logs/
+
+
+# bin
+bin/
+
 
 #
 .idea
