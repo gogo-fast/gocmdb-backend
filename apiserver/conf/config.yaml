@@ -6,7 +6,7 @@ server:
   port: 8000
   # domain is used to set token
   domain: cmdb.com
-  token_exp: 600 # seconds
+  token_exp: 3600 # seconds
   default_page_num: 1
   default_page_size: 10
   websocket_update_interval: 10 # seconds
@@ -71,7 +71,7 @@ cors:
 
 
 jwt:
-  max_exp: 600  # seconds
+  max_exp: 3600  # seconds
 
 
 mysql:
@@ -92,8 +92,8 @@ aliyun:
 
 tencent:
   default_region_id: ap-beijing
-  access_key_id: AKIDgnjRUcfMtDt24pgFbiY8TfcdegS
-  access_key_secret: e3CChK2Xpt9qPR0FEze3C1h
+  access_key_id: AKIDgnjR
+  access_key_secret: e3CChK0F
 
 update_host_record:
   interval: 5 # seconds

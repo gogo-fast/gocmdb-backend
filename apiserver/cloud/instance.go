@@ -1,28 +1,17 @@
 package cloud
 
 const (
-	StatusPending = "PENDING"
+	StatusPending      = "PENDING"
 	StatusLaunchFailed = "CREATE_FAILED"
-	StatusRunning = "RUNNING"
-	StatusStopped = "STOPPED"
-	StatusStarting = "STARTING"
-	StatusStopping = "STOPPING"
-	StatusRebooting = "REBOOTING"
-	StatusShutdown = "SHUTDOWN"
-	StatusDeleting = "DELETING"
-	StatusUnknown = "UNKNOWN"
+	StatusRunning      = "RUNNING"
+	StatusStopped      = "STOPPED"
+	StatusStarting     = "STARTING"
+	StatusStopping     = "STOPPING"
+	StatusRebooting    = "REBOOTING"
+	StatusShutdown     = "SHUTDOWN"
+	StatusDeleting     = "DELETING"
+	StatusUnknown      = "UNKNOWN"
 )
-
-
-type Region struct {
-	RegionId   string
-	RegionName string
-}
-
-type Zone struct {
-	ZoneId   string
-	ZoneName string
-}
 
 type DataDisk struct {
 	Size     string
@@ -37,12 +26,6 @@ type Tag struct {
 type SystemDisk struct {
 	Size     int
 	Category string
-}
-
-type SecurityGroup struct {
-	SecurityGroupId   string
-	SecurityGroupName string
-	VpcId             string
 }
 
 type Instance struct {
@@ -83,5 +66,3 @@ type InstanceStaus struct {
 	InstanceId    string
 	InstanceState string
 }
-
-

@@ -22,6 +22,7 @@ type CCloud interface {
 	RebootInstance(regionId, instanceId string) error
 	DeleteInstance(regionId, instanceId string) error
 	InstanceStatusTransform(string) string
+	GetMonitorDataOfInstances(regionId, metricName, startTime, endTime string, period int, instanceIDs []string) ([]*DataPoint, error)
 }
 
 type CCloudMgr struct {

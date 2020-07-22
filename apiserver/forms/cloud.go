@@ -45,3 +45,17 @@ type InstanceTemplate struct {
 	CreditSpecification string // Standard：标准模式 Unlimited：无性能约束模式
 	Tenancy             string // default：在非专有宿主机上创建实例。 host：在专有宿主机上创建实例。若您不指定DedicatedHostId，则由阿里云自动选择专有宿主机部署实例 默认值：default。
 }
+
+type InstanceMonitorPostForm struct {
+	PlatType    string   `json:"platType"`
+	RegionId    string   `json:"regionId"`
+	StartTime   string   `json:"startTime"`
+	EndTime     string   `json:"endTime"`
+	Period      int      `json:"period"`
+	MetricName  string   `json:"metricName"`
+	InstanceIds []string `json:"instanceIds"`
+	// DurationType: 'fixed | custom',
+	// fixed is get the latest data of time duration
+	// custom is get the data of custom time duration, not the latest data.
+	DurationType string `json:"durationType"`
+}

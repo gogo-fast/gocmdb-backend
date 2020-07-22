@@ -117,3 +117,11 @@ func EmptyZonesResponse(c *gin.Context, msg string) {
 		"data":   []*cloud.Zone{},
 	})
 }
+
+func EmptyDataPointsResponse(c *gin.Context, msg string) {
+	c.JSON(200, gin.H{
+		"status": "error",
+		"msg":    msg,
+		"data":   []*cloud.DataPoint{},
+	})
+}

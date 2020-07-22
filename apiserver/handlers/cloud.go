@@ -2,12 +2,14 @@ package handlers
 
 import (
 	"apiserver/cloud"
+	"apiserver/forms"
 	"apiserver/utils"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -677,4 +679,148 @@ func DeleteInstance(c *gin.Context) {
 		"msg":    "delete instance success",
 		"data":   gin.H{},
 	})
+}
+
+func LoadInstanceMonitorData(c *gin.Context) {
+	var f forms.InstanceMonitorPostForm
+	err := c.ShouldBindJSON(&f)
+	if err != nil {
+		utils.Logger.Warning(fmt.Sprintf("invalid post data"))
+		return
+	}
+	platType := f.PlatType
+	regionId := f.RegionId
+	metricName := f.MetricName
+	startTime := f.StartTime
+	endTime := f.EndTime
+	period := f.Period
+	instanceIds := f.InstanceIds
+
+	cCloud, ok := cloud.DefaultCloudMgr.GetCloud(platType)
+	if !ok {
+		utils.Logger.Warning(fmt.Sprintf("get %s cloud manager failed", platType))
+		EmptyDataPointsResponse(c, fmt.Sprintf("do not support cloud %s", platType))
+		return
+	}
+	dataPoints, err := cCloud.GetMonitorDataOfInstances(regionId, metricName, startTime, endTime, period, instanceIds)
+	if err != nil {
+		EmptyDataPointsResponse(c, fmt.Sprintf("get [%s] from [%s] failed", metricName, cCloud.PlatType()))
+		return
+	}
+	c.JSON(200, gin.H{
+		"status": "ok",
+		"msg":    "get monitor data success",
+		"data":   dataPoints,
+	})
+
+}
+
+func SevMonitorTask(conn *utils.Connection) {
+
+	go func(conn *utils.Connection) {
+		for {
+			bytes, err := conn.ReadMessage()
+
+			if err != nil {
+				utils.Logger.Error(fmt.Sprintf("read from websocket of [%s] failed", conn.WsConn.RemoteAddr().String()))
+				conn.Close()
+				return
+			}
+
+			var (
+				data []byte
+				//err  error
+				ok bool
+				//task *MonitorTask
+			)
+
+			var f forms.InstanceMonitorPostForm
+			err = json.Unmarshal(bytes, &f)
+			if err != nil {
+				utils.Logger.Warningf("parse ws data failed, %s", err)
+				return
+			}
+
+			platType := f.PlatType
+			regionId := f.RegionId
+			metricName := f.MetricName
+			startTime := f.StartTime
+			endTime := f.EndTime
+			period := f.Period
+			instanceIds := f.InstanceIds
+			DurationType := f.DurationType
+
+			ss := strings.Split(startTime, "+")
+			es := strings.Split(endTime, "+")
+			var (
+				st, et time.Time
+			)
+
+			// calculate time delta for fixed.
+			st, err = time.Parse("2006-01-02T15:04:05", ss[0])
+			if err != nil {
+				utils.Logger.Error(fmt.Sprintf("invalid time format [%s]", st))
+				return
+			}
+			et, err = time.Parse("2006-01-02T15:04:05", es[0])
+			if err != nil {
+				utils.Logger.Error(fmt.Sprintf("invalid time format [%s]", et))
+				return
+			}
+			timeDelta := et.Sub(st) // time.Duration
+
+			cCloud, ok := cloud.DefaultCloudMgr.GetCloud(platType)
+			if !ok {
+				utils.Logger.Warningf("get %s cloud manager failed", platType)
+				return
+			}
+			if DurationType == "fixed" {
+				startTime = fmt.Sprintf("%s%s", time.Now().Add(-timeDelta).Format("2006-01-02T15:04:05"), "+08:00")
+				endTime = fmt.Sprintf("%s%s", time.Now().Format("2006-01-02T15:04:05"), "+08:00")
+			}
+
+			go func() {
+				dataPoints, err := cCloud.GetMonitorDataOfInstances(regionId, metricName, startTime, endTime, period, instanceIds)
+				if err != nil {
+					utils.Logger.Error(err)
+					data, err = json.Marshal(gin.H{
+						"status": "error",
+						"msg":    fmt.Sprintf("获取 [%s] [%s] 数据失败", platType, metricName),
+						"data":   []*cloud.DataPoint{},
+					})
+				} else {
+					data, err = json.Marshal(gin.H{
+						"status": "ok",
+						"msg":    fmt.Sprintf("获取 [%s] [%s] 数据成功", platType, metricName),
+						"data":   dataPoints,
+					})
+				}
+				//fmt.Printf("%s data: %v\n", metricName, string(data))
+				err = conn.WriteMessage(data)
+				if err != nil {
+					fmt.Println("写入失败")
+					conn.Close()
+					return
+				}
+			}()
+		}
+	}(conn)
+}
+
+func WsGetInstanceMonitorData(c *gin.Context) {
+	var (
+		wsConn *websocket.Conn
+		err    error
+	)
+
+	// Upgrade: websocket
+	wsConn, err = upGrader.Upgrade(c.Writer, c.Request, nil)
+	if err != nil {
+		utils.Logger.Error(err)
+		return
+	}
+
+	conn := utils.InitConnection(wsConn)
+	utils.Logger.Info(fmt.Sprintf("getting new websocket [%s]", wsConn.RemoteAddr().String()))
+	SevMonitorTask(conn)
 }

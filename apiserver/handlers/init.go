@@ -12,7 +12,7 @@ var Route *gin.Engine
 
 func init() {
 	Route = gin.Default()
-
+	InitWs()
 	mmy := utils.GlobalConfig.GetInt("filesystem.max_multipart_memory")
 	Route.MaxMultipartMemory = 8 << mmy
 
@@ -76,6 +76,8 @@ func init() {
 			cloud.GET("/instance/list", middlewares.BaseAuth, GetInstanceList)
 			cloud.GET("/instance", middlewares.BaseAuth, GetInstance)
 			cloud.GET("/instance/status/all", middlewares.BaseAuth, GetAllInstanceStatusList)
+			cloud.POST("/instance/monitor", middlewares.BaseAuth, LoadInstanceMonitorData)
+
 			cloud.POST("/instance/status/list", middlewares.BaseAuth, LoadInstanceStatusList)
 			cloud.POST("/instance/start", middlewares.BaseAuth, StartInstance)
 			cloud.POST("/instance/stop", middlewares.BaseAuth, StopInstance)
@@ -87,6 +89,7 @@ func init() {
 				ws.GET("/instance/list", middlewares.BaseAuth, WsGetInstanceList)
 				ws.GET("/instance/status/all", middlewares.BaseAuth, WsGetAllInstanceStatusList)
 				ws.GET("/instance", middlewares.BaseAuth, WsGetInstance)
+				ws.GET("/instance/monitor", middlewares.BaseAuth, WsGetInstanceMonitorData)
 			}
 		}
 
