@@ -1,6 +1,8 @@
 package middlewares
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+)
 
 func BadResponse(c *gin.Context, msg string) {
 	c.JSON(200, gin.H{
@@ -9,3 +11,4 @@ func BadResponse(c *gin.Context, msg string) {
 		"data":   gin.H{},
 	})
 }
+
