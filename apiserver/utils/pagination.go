@@ -32,10 +32,10 @@ func NewPagination(total, currentPageNum, pageSize, paginationLength int) (*Pagi
 	maxPaginationLength := 10
 
 	if paginationLength <= 0 {
-		return nil, fmt.Errorf("分页长度不能为负数")
+		return nil, fmt.Errorf("分页长度必须为正整数")
 	}
 
-	if total <= 0 {
+	if total < 0 {
 		return nil, fmt.Errorf("数据总数不能为负数")
 	}
 

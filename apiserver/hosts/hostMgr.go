@@ -83,12 +83,15 @@ func (h *HostMgr) LoadHostsFromDB() {
 		utils.Logger.Error(fmt.Sprintf("get host list failed, %s", err))
 		return
 	}
-	for _, host := range hosts {
-		h.HostsChan <- host
-		h.mutex.Lock()
-		h.Hosts[host.UUID] = host
-		h.mutex.Unlock()
-	}
+	go func(hosts []*models.Host) {
+		for _, host := range hosts {
+			h.HostsChan <- host
+			h.mutex.Lock()
+			h.Hosts[host.UUID] = host
+			h.mutex.Unlock()
+		}
+	}(hosts)
+
 }
 
 func (h *HostMgr) DeleteHost(uuid string) {
@@ -100,8 +103,10 @@ func (h *HostMgr) DeleteHost(uuid string) {
 func (h *HostMgr) Run() {
 
 	interval := utils.GlobalConfig.GetInt64("update_host_record.interval")
+	// must load all host into memory first while start running.
 	h.LoadHostsFromDB()
 
+	// update hosts status in memory
 	go func() {
 		for {
 			h.mutex.RLock()
@@ -120,6 +125,7 @@ func (h *HostMgr) Run() {
 		}
 	}()
 
+	// update hosts status in db
 	go func() {
 		for {
 			host := <-h.OffsetLineHostChan
@@ -130,6 +136,7 @@ func (h *HostMgr) Run() {
 		}
 	}()
 
+	// keep hosts in memory same to db.
 	go func(hc <-chan *models.Host) {
 		for v := range hc {
 			_, err := models.DefaultHostManager.GetHostRecordByUUID(v.UUID)

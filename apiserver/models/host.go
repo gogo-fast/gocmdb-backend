@@ -69,11 +69,17 @@ func (h *HostManager) GetHostRecordList(page, size int) (int, []*Host, *utils.Pa
 		utils.Logger.Error(err)
 		return 0, nil, nil, err
 	}
+
 	pagination, err := utils.NewPagination(total, page, size, 5)
 	if err != nil {
 		utils.Logger.Error(err)
 		return 0, nil, nil, err
 	}
+
+	if total == 0 {
+		return 0, []*Host{}, pagination, nil
+	}
+
 	err = db.Select(&hostList, sqlHosts, utils.HOST_DELETED, pagination.CurrentPage.Offset, pagination.CurrentPage.Limit)
 	if err != nil {
 		utils.Logger.Error(err)

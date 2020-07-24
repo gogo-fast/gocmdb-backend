@@ -148,30 +148,32 @@ func WsGetHost(c *gin.Context) {
 	conn := utils.InitConnection(wsConn)
 	utils.Logger.Info(fmt.Sprintf("getting host [%s] websocket success", uuid))
 
-	for {
-		host, err := models.DefaultHostManager.GetHostRecordByUUID(uuid)
-		if err != nil {
-			utils.Logger.Error(err)
-			//utils.BadResponse(c, "所查主机不存在")
-			data, err = json.Marshal(gin.H{
-				"status": "error",
-				"msg":    "获取主机失败",
-				"data":   []*models.Host{},
-			})
-		} else {
-			data, err = json.Marshal(gin.H{
-				"status": "ok",
-				"msg":    "获取主机成功",
-				"data":   []*models.Host{host},
-			})
+	go func(conn *utils.Connection, uuid string) {
+		for {
+			host, err := models.DefaultHostManager.GetHostRecordByUUID(uuid)
+			if err != nil {
+				utils.Logger.Error(err)
+				//utils.BadResponse(c, "所查主机不存在")
+				data, err = json.Marshal(gin.H{
+					"status": "error",
+					"msg":    "获取主机失败",
+					"data":   []*models.Host{},
+				})
+			} else {
+				data, err = json.Marshal(gin.H{
+					"status": "ok",
+					"msg":    "获取主机成功",
+					"data":   []*models.Host{host},
+				})
+			}
+			err = conn.WriteMessage(data)
+			if err != nil {
+				conn.Close()
+				return
+			}
+			time.Sleep(time.Second * time.Duration(wsUpdateInterval))
 		}
-		err = conn.WriteMessage(data)
-		if err != nil {
-			conn.Close()
-			return
-		}
-		time.Sleep(time.Second * time.Duration(wsUpdateInterval))
-	}
+	}(conn, uuid)
 
 }
 
@@ -204,37 +206,39 @@ func WsGetHostList(c *gin.Context) {
 		s = defaultPageSize
 	}
 
-	for {
-		total, hostList, pagination, err := models.DefaultHostManager.GetHostRecordList(p, s)
-		if err != nil {
-			utils.Logger.Error(err)
-			data, err = json.Marshal(gin.H{
-				"status": "error",
-				"msg":    "获取主机列表失败",
-				"data": gin.H{
-					"total":          0,
-					"hosts":          []*models.Host{},
-					"currentPageNum": -1,
-				},
-			})
-		} else {
-			data, err = json.Marshal(gin.H{
-				"status": "ok",
-				"msg":    "获取主机列表成功",
-				"data": gin.H{
-					"total":          total,
-					"hosts":          hostList,
-					"currentPageNum": pagination.CurrentPageNum,
-				},
-			})
+	go func(conn *utils.Connection, p, s int) {
+		for {
+			total, hostList, pagination, err := models.DefaultHostManager.GetHostRecordList(p, s)
+			if err != nil {
+				utils.Logger.Error(err)
+				data, err = json.Marshal(gin.H{
+					"status": "error",
+					"msg":    "获取主机列表失败",
+					"data": gin.H{
+						"total":          0,
+						"hosts":          []*models.Host{},
+						"currentPageNum": -1,
+					},
+				})
+			} else {
+				data, err = json.Marshal(gin.H{
+					"status": "ok",
+					"msg":    "获取主机列表成功",
+					"data": gin.H{
+						"total":          total,
+						"hosts":          hostList,
+						"currentPageNum": pagination.CurrentPageNum,
+					},
+				})
+			}
+			err = conn.WriteMessage(data)
+			if err != nil {
+				conn.Close()
+				return
+			}
+			time.Sleep(time.Second * time.Duration(wsUpdateInterval))
 		}
-		err = conn.WriteMessage(data)
-		if err != nil {
-			conn.Close()
-			return
-		}
-		time.Sleep(time.Second * time.Duration(wsUpdateInterval))
-	}
+	}(conn, p, s)
 
 }
 

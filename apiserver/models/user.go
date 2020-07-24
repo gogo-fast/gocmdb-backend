@@ -72,6 +72,10 @@ func (u *UserManager) GetUserList(page, size int) (int, []*User, *utils.Paginati
 		return 0, nil, nil, err
 	}
 
+	if total == 0 {
+		return 0, []*User{}, pagination, nil
+	}
+
 	var userList []*User
 
 	err = db.Select(&userList, sql_users, utils.Deleted, pagination.CurrentPage.Offset, pagination.CurrentPage.Limit)
