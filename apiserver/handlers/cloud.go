@@ -217,38 +217,41 @@ func WsGetAllInstanceStatusList(c *gin.Context) {
 	conn := utils.InitConnection(wsConn)
 	utils.Logger.Info(fmt.Sprintf("getting instances status websocket of [%s] success", platType))
 
-	for {
-		statusList, err := cCloud.GetAllInstancesStatus(regionId)
-		if err != nil {
-			utils.Logger.Error(err)
-			data, err = json.Marshal(gin.H{
-				"status": "error",
-				"msg":    fmt.Sprintf("获取 [%s] [%s] 云主机状态列表失败", platType, regionId),
-				"data": gin.H{
-					"total":           0,
-					"instancesStatus": []*cloud.InstanceStaus{},
-					"currentPageNum":  -1,
-				},
-			})
-		} else {
-			data, err = json.Marshal(gin.H{
-				"status": "ok",
-				"msg":    fmt.Sprintf("获取 [%s] [%s] 云主机状态列表成功", platType, regionId),
-				"data": gin.H{
-					"total":           len(statusList),
-					"instancesStatus": statusList,
-					"currentPageNum":  -1,
-				},
-			})
+	go func(conn *utils.Connection, regionId string) {
+		for {
+			statusList, err := cCloud.GetAllInstancesStatus(regionId)
+			if err != nil {
+				utils.Logger.Error(err)
+				data, err = json.Marshal(gin.H{
+					"status": "error",
+					"msg":    fmt.Sprintf("获取云主机状态列表失败"),
+					"data": gin.H{
+						"total":           0,
+						"instancesStatus": []*cloud.InstanceStaus{},
+						"currentPageNum":  -1,
+					},
+				})
+			} else {
+				data, err = json.Marshal(gin.H{
+					"status": "ok",
+					"msg":    fmt.Sprintf("获取云主机状态列表成功"),
+					"data": gin.H{
+						"total":           len(statusList),
+						"instancesStatus": statusList,
+						"currentPageNum":  -1,
+					},
+				})
+			}
+			//fmt.Println(instanceList)
+			err = conn.WriteMessage(data)
+			if err != nil {
+				conn.Close()
+				return
+			}
+			time.Sleep(time.Second * time.Duration(wsUpdateInterval))
 		}
-		//fmt.Println(instanceList)
-		err = conn.WriteMessage(data)
-		if err != nil {
-			conn.Close()
-			return
-		}
-		time.Sleep(time.Second * time.Duration(wsUpdateInterval))
-	}
+	}(conn, regionId)
+
 }
 
 func GetInstanceList(c *gin.Context) {
@@ -364,38 +367,41 @@ func WsGetInstanceList(c *gin.Context) {
 	conn := utils.InitConnection(wsConn)
 	utils.Logger.Info(fmt.Sprintf("getting instances websocket of [%s] success", platType))
 
-	for {
-		instanceList, total, err := cCloud.GetInstanceListPerPage(regionId, p, s)
-		if err != nil {
-			utils.Logger.Error(err)
-			data, err = json.Marshal(gin.H{
-				"status": "error",
-				"msg":    fmt.Sprintf("获取 [%s] 云主机列表失败", platType),
-				"data": gin.H{
-					"total":          0,
-					"instances":      []*cloud.Instance{},
-					"currentPageNum": -1,
-				},
-			})
-		} else {
-			data, err = json.Marshal(gin.H{
-				"status": "ok",
-				"msg":    fmt.Sprintf("获取 [%s] 云主机列表成功", platType),
-				"data": gin.H{
-					"total":          total,
-					"instances":      instanceList,
-					"currentPageNum": p,
-				},
-			})
+	go func(conn *utils.Connection, regionId string, p, s int) {
+		for {
+			instanceList, total, err := cCloud.GetInstanceListPerPage(regionId, p, s)
+			if err != nil {
+				utils.Logger.Error(err)
+				data, err = json.Marshal(gin.H{
+					"status": "error",
+					"msg":    fmt.Sprintf("获取云主机列表失败"),
+					"data": gin.H{
+						"total":          0,
+						"instances":      []*cloud.Instance{},
+						"currentPageNum": -1,
+					},
+				})
+			} else {
+				data, err = json.Marshal(gin.H{
+					"status": "ok",
+					"msg":    fmt.Sprintf("获取云主机列表成功"),
+					"data": gin.H{
+						"total":          total,
+						"instances":      instanceList,
+						"currentPageNum": p,
+					},
+				})
+			}
+			//fmt.Println(instanceList)
+			err = conn.WriteMessage(data)
+			if err != nil {
+				conn.Close()
+				return
+			}
+			time.Sleep(time.Second * time.Duration(wsUpdateInterval))
 		}
-		//fmt.Println(instanceList)
-		err = conn.WriteMessage(data)
-		if err != nil {
-			conn.Close()
-			return
-		}
-		time.Sleep(time.Second * time.Duration(wsUpdateInterval))
-	}
+	}(conn, regionId, p, s)
+
 }
 
 func GetAllInstance(c *gin.Context) {
@@ -515,30 +521,33 @@ func WsGetInstance(c *gin.Context) {
 	conn := utils.InitConnection(wsConn)
 	utils.Logger.Info(fmt.Sprintf("getting instance [%s] websocket of [%s] success", instanceId, platType))
 
-	for {
-		instance, err := cCloud.GetInstance(regionId, instanceId)
-		if err != nil {
-			utils.Logger.Error(err)
-			data, err = json.Marshal(gin.H{
-				"status": "error",
-				"msg":    fmt.Sprintf("获取 [%s] 云主机失败", platType),
-				"data":   []*cloud.Instance{},
-			})
-		} else {
-			data, err = json.Marshal(gin.H{
-				"status": "ok",
-				"msg":    fmt.Sprintf("获取 [%s] 云主机成功", platType),
-				"data":   []*cloud.Instance{instance},
-			})
+	go func(conn *utils.Connection, regionId, instanceId string) {
+		for {
+			instance, err := cCloud.GetInstance(regionId, instanceId)
+			if err != nil {
+				utils.Logger.Error(err)
+				data, err = json.Marshal(gin.H{
+					"status": "error",
+					"msg":    fmt.Sprintf("获取云主机失败"),
+					"data":   []*cloud.Instance{},
+				})
+			} else {
+				data, err = json.Marshal(gin.H{
+					"status": "ok",
+					"msg":    fmt.Sprintf("获取云主机成功"),
+					"data":   []*cloud.Instance{instance},
+				})
+			}
+			//fmt.Println(instanceList)
+			err = conn.WriteMessage(data)
+			if err != nil {
+				conn.Close()
+				return
+			}
+			time.Sleep(time.Second * time.Duration(wsUpdateInterval))
 		}
-		//fmt.Println(instanceList)
-		err = conn.WriteMessage(data)
-		if err != nil {
-			conn.Close()
-			return
-		}
-		time.Sleep(time.Second * time.Duration(wsUpdateInterval))
-	}
+	}(conn, regionId, instanceId)
+
 }
 
 func StopInstance(c *gin.Context) {

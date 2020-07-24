@@ -87,8 +87,8 @@ mysql:
 
 aliyun:
   default_region_id: cn-zhangjiakou
-  access_key_id: LTAI4GEBoCN3GUfd1i
-  access_key_secret: n23QvMe6FkwsWcVexBEa6AFb
+  access_key_id: 4SwM7qRxPqU
+  access_key_secret: Iq1gVruLF
 
 tencent:
   default_region_id: ap-beijing
